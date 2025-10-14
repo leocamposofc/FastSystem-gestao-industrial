@@ -1,0 +1,103 @@
+HTML = """<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cotador de Capeamento de Asfalto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #ccc;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        fieldset {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fafafa;
+        }
+        legend {
+            font-weight: bold;
+        }
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 6px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        p {
+            font-size: 15px;
+        }
+        .msg {
+            color: green;
+        }
+        .erro {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Calculadora de Capeamento de Asfalto</h2>
+        <form method="post">
+            Metragem (m²):
+            <input type="number" step="any" name="metragem" required><br>
+            
+            Espessura da massa (cm):
+            <input type="number" step="any" name="espessura_cm" required><br>
+            
+            <fieldset>
+                <legend>Selecione o que será necessário na obra:</legend>
+                <label><input type="checkbox" name="equipamentos" value="rolo_compactor"> Rolo Compactador (R$ {{ preco_rolo }})</label><br>
+                <label><input type="checkbox" name="equipamentos" value="pavimentadora"> Pavimentadora (R$ {{ preco_pavimentadora }})</label><br>
+                <label><input type="checkbox" name="equipamentos" value="equipe_mao_obra"> Equipe de Mão de Obra (R$ {{ preco_mao_obra }})</label><br>
+                <label><input type="checkbox" name="equipamentos" value="sinalizacao"> Sinalização de Segurança (R$ {{ preco_sinalizacao }})</label><br>
+                <label><input type="checkbox" name="equipamentos" value="outros"> Outros (R$ {{ preco_outros }})</label><br>
+            </fieldset>
+
+            <button type="submit">Calcular</button>
+            <button type="submit" formaction="/emitir_orcamento" formmethod="post">Emitir Orçamento PDF</button>
+        </form>
+
+        {% if custo is not none %}
+            <p class="msg">Custo estimado: R$ {{ custo }}</p>
+        {% endif %}
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>"""
+

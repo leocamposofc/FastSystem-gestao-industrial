@@ -5,6 +5,7 @@ import io
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import sqlite3
+from telas 
 
 app = Flask(__name__)
 
