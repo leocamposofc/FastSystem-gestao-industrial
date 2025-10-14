@@ -1,0 +1,26 @@
+# Variáveis de configuração (consultadas pelo sistema)
+densidade_asfalto = 0.0     # em kg/m³
+preco_asfalto_por_tonelada = 0.0  # em R$
+fator_perda = 0.0           # percentual de perda (%)
+fator_compactacao = 0.0     # percentual de compactação (%)
+
+# Custos adicionais (consultados pelo sistema)
+custo_mao_obra = 100.0     # em R$
+custo_transporte = 0.0      # em R$
+custo_locacao_rolo = 1300.0    # em R$ (valor da locação do rolo)
+custo_caminhao_cacamba = 2000.0  # em R$ (valor do custo do caminhão caçamba)
+custo_pavimentadora = 2000.0     # em R$ (valor do custo da pavimentadora)
+custo_sinalizacao = 0.0       # em R$ (valor do custo da sinalização)
+custo_outros = 0.0            # em R$ (outros custos)
+
+# Resultados do cálculo (inicializados)
+volume_total = 0.0          # em m³
+massa_total = 0.0           # em toneladas
+custo_total = 0.0           # em R$
+
+# Configurações do desenvolvedor
+nome_empresa = "Camps serviços"
+site_empresa = "www.campsservicos.com.br"
+email_empresa = "campsservicos@gmail.com"
+validade_orcamento_dias = 15  # validade do orçamento em dias
+senha_de_seguranca = "camps1310"  # senha de segurança para deletar clientes no db
