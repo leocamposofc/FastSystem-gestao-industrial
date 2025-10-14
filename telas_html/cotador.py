@@ -80,6 +80,10 @@ HTML = """<!DOCTYPE html>
                 <input type="number" step="any" name="expessura" required><br>
                 densidade (kg/m³):
                 <input type="number" step="any" name="densidade" required><br>
+                Preço da massa (R$/t):
+                <input type="number" step="any" name="preco_massa" required><br>
+                Frete (por viagem(20t)):
+                <input type="number" step="any" name="frete" required><br>
         </div>
             
             Espessura da massa (cm):
