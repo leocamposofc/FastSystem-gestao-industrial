@@ -13,6 +13,7 @@ custo_pavimentadora = 2000.0     # em R$ (valor do custo da pavimentadora)
 custo_sinalizacao = 0.0       # em R$ (valor do custo da sinalização)
 custo_outros = 0.0            # em R$ (outros custos)
 preco_massa = 660 # em R$ (preço padrão da massa asfáltica por tonelada)
+margem_perda = 10.0  # em % (margem padrão de perda/compactação)
 
 # Resultados do cálculo (inicializados)
 volume_total = 0.0          # em m³

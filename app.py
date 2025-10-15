@@ -54,7 +54,8 @@ def index():
         preco_mao_obra=precos["equipe_mao_obra"],
         preco_sinalizacao=precos["sinalizacao"],
         preco_outros=precos["outros"],
-        preco_massa=configuracoes.preco_massa
+        preco_massa=configuracoes.preco_massa,
+        perda=configuracoes.margem_perda
 
     )
 

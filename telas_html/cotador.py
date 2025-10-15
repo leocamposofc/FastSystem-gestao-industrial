@@ -16,6 +16,14 @@ HTML = """<!DOCTYPE html>
             border-radius: 8px;
             box-shadow: 0 2px 8px #ccc;
         }
+        .massa-bloco {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #ccc;
+        }
         h2 {
             text-align: center;
             margin-bottom: 20px;
@@ -24,7 +32,7 @@ HTML = """<!DOCTYPE html>
             margin-bottom: 30px;
         }
         input, select, textarea {
-            width: 100%;
+            width: 95%;
             padding: 8px;
             margin: 6px 0;
             border-radius: 4px;
@@ -107,7 +115,7 @@ HTML = """<!DOCTYPE html>
         <form method="post" id="form-massa">
             <div id="massa-container">
                 <div id="massa-lista">
-                    <div class="massa-bloco"
+                    <div class="massa-bloco">
                         <h3>Camada 1</h3>
                         <div class="tipo-massa">
                             <label>Tipo de massa:</label><br>
@@ -126,6 +134,8 @@ HTML = """<!DOCTYPE html>
                         <input type="number" step="any" name="densidade[]" required><br>
                         Preço da massa (R$/t):
                         <input type="number" step="any" value="{{ preco_massa }}" name="preco_massa[]" required><br>
+                        Margem de perda/compactação (%):
+                        <input type="number" step="any" name="perda[]" value="{{ perda }}" required><br>
                         Frete (por viagem(20t)):
                         <input type="number" step="any" name="frete[]" required><br>
                     </div>
@@ -172,9 +182,11 @@ function calcularCusto() {
         const densidade = parseFloat(camada.querySelector('input[name="densidade[]"]').value) || 0;
         const preco = parseFloat(camada.querySelector('input[name="preco_massa[]"]').value) || 0;
         const frete = parseFloat(camada.querySelector('input[name="frete[]"]').value) || 0;
+        const perda = parseFloat(camada.querySelector('input[name="perda[]"]').value) || 0;
 
-        // cálculo da massa em toneladas
-        const toneladas = metragem * (espessura / 100) * densidade;
+        // cálculo da massa em toneladas (com perda)
+        const toneladasBase = metragem * (espessura / 100) * densidade;
+        const toneladas = toneladasBase * (1 + perda / 100);
         const custoCamada = toneladas * preco + frete;
 
         // mostra quantidade de massa e custo dentro da camada
@@ -184,7 +196,11 @@ function calcularCusto() {
             pCusto.classList.add('custo-camada');
             camada.appendChild(pCusto);
         }
-        pCusto.textContent = `Massa necessária: ${toneladas.toFixed(2)} t | Custo desta camada: R$ ${custoCamada.toFixed(2)}`;
+        pCusto.textContent = `
+        Massa necessária: ${toneladas.toFixed(2)} t (com ${perda}% de perda) | 
+        Custo desta camada: R$ ${custoCamada.toFixed(2)}
+`;
+
 
         // adiciona ao total
         custoTotal += custoCamada;
@@ -223,7 +239,9 @@ addBtn.addEventListener('click', () => {
         Densidade (t/m³):
         <input type="number" step="any" name="densidade[]" required><br>
         Preço da massa (R$/t):
-        <input type="number" step="any" name="preco_massa[]" required><br>
+        <input type="number" step="any" name="preco_massa[]" value="{{ preco_massa }}" required><br>
+        Margem de perda/compactação (%):
+        <input type="number" step="any" name="perda[]" value="{{ perda }}" required><br>
         Frete (por viagem(20t)):
         <input type="number" step="any" name="frete[]" required><br>
         <button type="button" class="remove-btn">Remover camada</button>
