@@ -106,15 +106,17 @@ HTML = """<!DOCTYPE html>
         <h2>Calculadora de Capeamento de Asfalto</h2>
         <form method="post" id="form-massa">
             <div id="massa-container">
-                    <div id="massa-lista">
-                    <div class="massa-bloco">
+                <div id="massa-lista">
+                    <div class="massa-bloco"
                         <h3>Camada 1</h3>
                         <div class="tipo-massa">
                             <label>Tipo de massa:</label><br>
                             <input type="radio" id="binder1" name="tipo_massa[]" value="binder" required>
                             <label for="binder1" class="btn-radio">Binder</label>
-                            <input type="radio" id="rolamento1" name="tipo_massa[]" value="rolamento">
-                            <label for="rolamento1" class="btn-radio">Rolamento</label>
+                            <input type="radio" id="cbuq1" name="tipo_massa[]" value="cbuq">
+                            <label for="cbuq1" class="btn-radio">CBUQ</label>
+                            <input type="radio" id="brita1" name="tipo_massa[]" value="brita">
+                            <label for="brita1" class="btn-radio">Brita</label>
                         </div>
                         Metragem (m²):
                         <input type="number" step="any" name="metragem[]" required><br>
@@ -209,8 +211,10 @@ addBtn.addEventListener('click', () => {
             <label>Tipo de massa:</label><br>
             <input type="radio" id="binder${contadorCamadas}" name="tipo_massa[]" value="binder" required>
             <label for="binder${contadorCamadas}" class="btn-radio">Binder</label>
-            <input type="radio" id="rolamento${contadorCamadas}" name="tipo_massa[]" value="rolamento">
-            <label for="rolamento${contadorCamadas}" class="btn-radio">Rolamento</label>
+            <input type="radio" id="cbuq${contadorCamadas}" name="tipo_massa[]" value="cbuq">
+            <label for="cbuq${contadorCamadas}" class="btn-radio">CBUQ</label>
+            <input type="radio" id="brita${contadorCamadas}" name="tipo_massa[]" value="brita">
+            <label for="brita${contadorCamadas}" class="btn-radio">Brita</label>
         </div>
         Metragem (m²):
         <input type="number" step="any" name="metragem[]" required><br>
@@ -230,6 +234,7 @@ addBtn.addEventListener('click', () => {
     novaCamada.querySelector('.remove-btn').addEventListener('click', () => {
         novaCamada.remove();
         calcularCusto(); // recalcula após remoção
+        contadorCamadas--;
     });
 });
 </script>

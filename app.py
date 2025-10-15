@@ -145,6 +145,7 @@ def inicio():
 
 @app.route("/clientes", methods=["GET", "POST"])
 def clientes():
+    from telas_html.clientes import HTML
     erro = ""
     sucesso = ""
     clientes_lista = []
@@ -253,7 +254,6 @@ def clientes():
         erro = f"Erro ao buscar clientes: {str(e)}"
     finally:
         banco.close()
-    from telas_html.clientes import HTML
     return render_template_string(
         HTML,
         clientes=clientes_lista,
