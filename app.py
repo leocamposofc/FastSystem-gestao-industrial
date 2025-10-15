@@ -5,6 +5,7 @@ import io
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import sqlite3
+from Configuracoes import configuracoes
 
 app = Flask(__name__)
 
@@ -52,7 +53,9 @@ def index():
         preco_pavimentadora=precos["pavimentadora"],
         preco_mao_obra=precos["equipe_mao_obra"],
         preco_sinalizacao=precos["sinalizacao"],
-        preco_outros=precos["outros"]
+        preco_outros=precos["outros"],
+        preco_massa=configuracoes.preco_massa
+
     )
 
 

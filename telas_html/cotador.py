@@ -125,7 +125,7 @@ HTML = """<!DOCTYPE html>
                         Densidade (t/m³):
                         <input type="number" step="any" name="densidade[]" required><br>
                         Preço da massa (R$/t):
-                        <input type="number" step="any" name="preco_massa[]" required><br>
+                        <input type="number" step="any" value="{{ preco_massa }}" name="preco_massa[]" required><br>
                         Frete (por viagem(20t)):
                         <input type="number" step="any" name="frete[]" required><br>
                     </div>

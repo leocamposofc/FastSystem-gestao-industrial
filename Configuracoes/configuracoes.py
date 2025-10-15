@@ -12,6 +12,7 @@ custo_caminhao_cacamba = 2000.0  # em R$ (valor do custo do caminhão caçamba)
 custo_pavimentadora = 2000.0     # em R$ (valor do custo da pavimentadora)
 custo_sinalizacao = 0.0       # em R$ (valor do custo da sinalização)
 custo_outros = 0.0            # em R$ (outros custos)
+preco_massa = 660 # em R$ (preço padrão da massa asfáltica por tonelada)
 
 # Resultados do cálculo (inicializados)
 volume_total = 0.0          # em m³
