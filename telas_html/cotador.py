@@ -120,7 +120,7 @@ HTML = """<!DOCTYPE html>
                         <input type="number" step="any" name="metragem[]" required><br>
                         Espessura (cm):
                         <input type="number" step="any" name="expessura[]" required><br>
-                        Densidade (kg/m³):
+                        Densidade (t/m³):
                         <input type="number" step="any" name="densidade[]" required><br>
                         Preço da massa (R$/t):
                         <input type="number" step="any" name="preco_massa[]" required><br>
@@ -159,7 +159,7 @@ let contadorCamadas = 1;
 const lista = document.getElementById('massa-lista');
 const addBtn = document.getElementById('add-camada');
 
-// Função para recalcular custos
+// Função para recalcular custos e quantidade de massa
 function calcularCusto() {
     let custoTotal = 0;
     const camadas = document.querySelectorAll('.massa-bloco');
@@ -171,18 +171,18 @@ function calcularCusto() {
         const preco = parseFloat(camada.querySelector('input[name="preco_massa[]"]').value) || 0;
         const frete = parseFloat(camada.querySelector('input[name="frete[]"]').value) || 0;
 
-        // cálculo em toneladas
-        const toneladas = metragem * (espessura/100) * densidade / 1000;
+        // cálculo da massa em toneladas
+        const toneladas = metragem * (espessura / 100) * densidade;
         const custoCamada = toneladas * preco + frete;
 
-        // mostra custo dentro da camada
+        // mostra quantidade de massa e custo dentro da camada
         let pCusto = camada.querySelector('.custo-camada');
         if(!pCusto) {
             pCusto = document.createElement('p');
             pCusto.classList.add('custo-camada');
             camada.appendChild(pCusto);
         }
-        pCusto.textContent = `Custo desta camada: R$ ${custoCamada.toFixed(2)}`;
+        pCusto.textContent = `Massa necessária: ${toneladas.toFixed(2)} t | Custo desta camada: R$ ${custoCamada.toFixed(2)}`;
 
         // adiciona ao total
         custoTotal += custoCamada;
@@ -216,7 +216,7 @@ addBtn.addEventListener('click', () => {
         <input type="number" step="any" name="metragem[]" required><br>
         Espessura (cm):
         <input type="number" step="any" name="expessura[]" required><br>
-        Densidade (kg/m³):
+        Densidade (t/m³):
         <input type="number" step="any" name="densidade[]" required><br>
         Preço da massa (R$/t):
         <input type="number" step="any" name="preco_massa[]" required><br>
@@ -233,6 +233,7 @@ addBtn.addEventListener('click', () => {
     });
 });
 </script>
+
 </body>
 </html>
 """
