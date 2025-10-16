@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Calculadora e Acompanhamento de Orçamentos</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f4f4f4; }
+.container { max-width: 1000px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow:0 2px 8px #ccc; }
+h2,h3 { margin-bottom: 15px; }
+.massa-bloco, .cola-bloco { border: 1px solid #ddd; padding: 15px; border-radius: 6px; margin-bottom: 15px; background: #fafafa; }
+input { width: 95%; padding: 6px; margin: 5px 0; border-radius: 4px; border:1px solid #ccc; }
+button { padding: 8px 15px; border:none; border-radius:5px; cursor:pointer; margin-top:5px; margin-right:5px; }
+.add-camada-btn { background-color: #28a745; color:#fff; }
+.remove-btn { background-color:#e04f4f; color:#fff; }
+.remove-btn:hover { background:#b93434; }
+.btn-radio { display:inline-block; padding:5px 12px; margin-right:5px; border:1px solid #007bff; border-radius:4px; cursor:pointer; background:#fff; color:#007bff; }
+input[type="radio"] { display:none; }
+input[type="radio"]:checked + .btn-radio { background:#007bff; color:#fff; }
+.custo-camada, .custo-camada-cola { margin-top:8px; font-weight:bold; color: #007bff; }
+.total-geral { font-size:18px; font-weight:bold; margin-top:10px; }
+.divisor { border:none; border-top:2px solid #ccc; margin:25px 0; width:100%; }
+table { width:100%; border-collapse:collapse; margin-top:20px; }
+td, th { border:1px solid #ddd; padding:8px; }
+th { background:#007bff; color:#fff; }
+.status-pendente { color: orange; }
+.status-aprovado { color: green; }
+.status-emitido { color: blue; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Criação de Orçamento</h2>
+
+<form method="post" id="form-massa">
+<h3>MASSA ASFÁLTICA</h3>
+<div id="massa-container">
+    <div id="massa-lista">
+        <div class="massa-bloco">
+            <h3>Camada 1</h3>
+            <div class="tipo-massa">
+                <label>Tipo de massa:</label><br>
+                <input type="radio" id="binder1" name="tipo_massa[]" value="binder" required>
+                <label for="binder1" class="btn-radio">Binder</label>
+                <input type="radio" id="cbuq1" name="tipo_massa[]" value="cbuq">
+                <label for="cbuq1" class="btn-radio">CBUQ</label>
+                <input type="radio" id="brita1" name="tipo_massa[]" value="brita">
+                <label for="brita1" class="btn-radio">Brita</label>
+            </div>
+            Metragem (m²):
+            <input type="number" step="any" name="metragem[]" required><br>
+            Espessura (cm):
+            <input type="number" step="any" name="expessura[]" required><br>
+            Densidade (t/m³):
+            <input type="number" step="any" name="densidade[]" required><br>
+            Preço da massa (R$/t):
+            <input type="number" step="any" value="300" name="preco_massa[]" required><br>
+            Margem de perda/compactação (%):
+            <input type="number" step="any" name="perda[]" value="5" required><br>
+            Frete (por viagem(20t)):
+            <input type="number" step="any" name="frete[]" value="0" required><br>
+            <p class="custo-camada">Massa necessária: 0 t | Custo desta camada: R$ 0</p>
+        </div>
+    </div>
+    <p class="total-geral">Total geral: R$ <span id="custo-total">0</span></p>
+    <button type="button" class="add-camada-btn" id="add-camada">+ Adicionar camada de massa</button>
+</div>
+
+<hr class="divisor">
+
+<h3>IMPRIMAÇÃO / COLA</h3>
+<div id="cola-lista">
+    <div class="cola-bloco">
+        Tipo de cola:<br>
+        <input type="radio" id="cm30_1" name="tipo_cola_1" value="CM-30" required>
+        <label for="cm30_1" class="btn-radio">CM-30</label>
+        <input type="radio" id="rr2_1" name="tipo_cola_1" value="RR-2C">
+        <label for="rr2_1" class="btn-radio">RR-2C</label><br>
+        Metragem (m²):
+        <input type="number" step="any" name="metragem_cola[]" required><br>
+        Litro por metro (L/m²):
+        <input type="number" step="any" name="litro_m[]" required><br>
+        Litros por tonel:
+        <input type="number" step="any" name="litro_tonel[]" value="100" required><br>
+        Preço do tonel (R$):
+        <input type="number" step="any" name="preco_tonel[]" value="500" required><br>
+        Margem de perda (%):
+        <input type="number" step="any" name="perda_cola[]" value="5" required><br>
+        Frete (por tonel):
+        <input type="number" step="any" name="frete_tonel[]" value="0" required><br>
+        <p class="custo-camada-cola">Cola necessária: 0 L | Custo desta camada: R$ 0</p>
+    </div>
+</div>
+<p class="total-geral">Total geral cola: R$ <span id="custo-total-cola">0</span></p>
+<button type="button" class="add-camada-btn" id="add-camada-cola">+ Adicionar camada de cola</button>
+
+<hr class="divisor">
+
+<button type="submit">Salvar Orçamento</button>
+</form>
+
+<hr class="divisor">
+
+<h2>Orçamentos Salvos</h2>
+<table>
+<tr>
+<th>ID</th>
+<th>Cliente</th>
+<th>Total Massa (R$)</th>
+<th>Total Cola (R$)</th>
+<th>Total Geral (R$)</th>
+<th>Status</th>
+<th>Ações</th>
+</tr>
+{% for o in orcamentos %}
+<tr>
+<td>{{ o.id }}</td>
+<td>{{ o.cliente.nome }}</td>
+<td>{{ o.massa_total|round(2) }}</td>
+<td>{{ o.cola_total|round(2) }}</td>
+<td>{{ (o.massa_total + o.cola_total)|round(2) }}</td>
+<td class="status-{{ o.status }}">{{ o.status }}</td>
+<td>
+<form method="post" action="{{ url_for('alterar_status', orcamento_id=o.id) }}" style="display:inline;">
+<select name="novo_status">
+<option value="pendente" {% if o.status=='pendente' %}selected{% endif %}>Pendente</option>
+<option value="aprovado" {% if o.status=='aprovado' %}selected{% endif %}>Aprovado</option>
+<option value="emitido" {% if o.status=='emitido' %}selected{% endif %}>Emitido</option>
+</select>
+<button type="submit">Alterar</button>
+</form>
+<form method="get" action="{{ url_for('emitir_orcamento') }}" style="display:inline;">
+<input type="hidden" name="orcamento_id" value="{{ o.id }}">
+<button type="submit">PDF</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+<script>
+// ==== Massa ====
+let contadorCamadas = 1;
+const lista = document.getElementById('massa-lista');
+const addBtn = document.getElementById('add-camada');
+
+function calcularCusto() {
+    let total = 0;
+    const camadas = document.querySelectorAll('.massa-bloco');
+    camadas.forEach(c => {
+        const m = parseFloat(c.querySelector('input[name="metragem[]"]').value) || 0;
+        const e = parseFloat(c.querySelector('input[name="expessura[]"]').value) || 0;
+        const d = parseFloat(c.querySelector('input[name="densidade[]"]').value) || 0;
+        const p = parseFloat(c.querySelector('input[name="preco_massa[]"]').value) || 0;
+        const f = parseFloat(c.querySelector('input[name="frete[]"]').value) || 0;
+        const perda = parseFloat(c.querySelector('input[name="perda[]"]').value) || 0;
+
+        const toneladas = m * (e/100) * d * (1+perda/100);
+        const custoCamada = toneladas * p + f;
+        total += custoCamada;
+
+        c.querySelector('.custo-camada').textContent = `Massa necessária: ${toneladas.toFixed(2)} t | Custo desta camada: R$ ${custoCamada.toFixed(2)}`;
+    });
+    document.getElementById('custo-total').textContent = total.toFixed(2);
+}
+
+lista.addEventListener('input', calcularCusto);
+
+addBtn.addEventListener('click', () => {
+    contadorCamadas++;
+    const nova = document.createElement('div');
+    nova.classList.add('massa-bloco');
+    nova.innerHTML = `
+    <h3>Camada ${contadorCamadas}</h3>
+    <div class="tipo-massa">
+    <label>Tipo de massa:</label><br>
+    <input type="radio" id="binder${contadorCamadas}" name="tipo_massa[]" value="binder" required>
+    <label for="binder${contadorCamadas}" class="btn-radio">Binder</label>
+    <input type="radio" id="cbuq${contadorCamadas}" name="tipo_massa[]" value="cbuq">
+    <label for="cbuq${contadorCamadas}" class="btn-radio">CBUQ</label>
+    <input type="radio" id="brita${contadorCamadas}" name="tipo_massa[]" value="brita">
+    <label for="brita${contadorCamadas}" class="btn-radio">Brita</label>
+    </div>
+    Metragem (m²):
+    <input type="number" step="any" name="metragem[]" required><br>
+    Espessura (cm):
+    <input type="number" step="any" name="expessura[]" required><br>
+    Densidade (t/m³):
+    <input type="number" step="any" name="densidade[]" required><br>
+    Preço da massa (R$/t):
+    <input type="number" step="any" name="preco_massa[]" required><br>
+    Margem de perda/compactação (%):
+    <input type="number" step="any" name="perda[]" required><br>
+    Frete (por viagem(20t)):
+    <input type="number" step="any" name="frete[]" value="0" required><br>
+    <p class="custo-camada">Massa necessária: 0 t | Custo desta camada: R$ 0</p>
+    <button type="button" class="remove-btn">Remover camada</button>
+    `;
+    lista.appendChild(nova);
+    nova.querySelector('.remove-btn').addEventListener('click', () => {
+        nova.remove();
+        calcularCusto();
+        contadorCamadas--;
+    });
+});
+
+// ==== Cola ====
+let contadorCamadasCola = 1;
+const lista_cola = document.getElementById('cola-lista');
+const addBtn_cola = document.getElementById('add-camada-cola');
+
+function calcularCustoCola() {
+    let totalCola = 0;
+    const camadas = document.querySelectorAll('.cola-bloco');
+    camadas.forEach(c => {
+        const m = parseFloat(c.querySelector('input[name="metragem_cola[]"]').value) || 0;
+        const lpm = parseFloat(c.querySelector('input[name="litro_m[]"]').value) || 0;
+        const ltTonel = parseFloat(c.querySelector('input[name="litro_tonel[]"]').value) || 1;
+        const preco = parseFloat(c.querySelector('input[name="preco_tonel[]"]').value) || 0;
+        const perda = parseFloat(c.querySelector('input[name="perda_cola[]"]').value) || 0;
+        const frete = parseFloat(c.querySelector('input[name="frete_tonel[]"]').value) || 0;
+
+        const litros = m * lpm * (1+perda/100);
+        const toneladas = litros / ltTonel;
+        const custoCamada = toneladas * preco + frete;
+        totalCola += custoCamada;
+
+        c.querySelector('.custo-camada-cola').textContent = `Cola necessária: ${litros.toFixed(2)} L (${toneladas.toFixed(2)} tonéis) | Custo desta camada: R$ ${custoCamada.toFixed(2)}`;
+    });
+    document.getElementById('custo-total-cola').textContent = totalCola.toFixed(2);
+}
+
+lista_cola.addEventListener('input', calcularCustoCola);
+
+addBtn_cola.addEventListener('click', () => {
+    contadorCamadasCola++;
+    const nova = document.createElement('div');
+    nova.classList.add('cola-bloco');
+    nova.innerHTML = `
+    <h3>Cola ${contadorCamadasCola}</h3>
+    Tipo de cola:<br>
+    <input type="radio" id="cm30_${contadorCamadasCola}" name="tipo_cola_${contadorCamadasCola}" value="CM-30" required>
+    <label for="cm30_${contadorCamadasCola}" class="btn-radio">CM-30</label>
+    <input type="radio" id="rr2_${contadorCamadasCola}" name="tipo_cola_${contadorCamadasCola}" value="RR-2C">
+    <label for="rr2_${contadorCamadasCola}" class="btn-radio">RR-2C</label><br>
+    Metragem (m²):
+    <input type="number" step="any" name="metragem_cola[]" required><br>
+    Litro por metro (L/m²):
+    <input type="number" step="any" name="litro_m[]" required><br>
+    Litros por tonel:
+    <input type="number" step="any" name="litro_tonel[]" required><br>
+    Preço do tonel (R$):
+    <input type="number" step="any" name="preco_tonel[]" required><br>
+    Margem de perda (%):
+    <input type="number" step="any" name="perda_cola[]" required><br>
+    Frete (por tonel):
+    <input type="number" step="any" name="frete_tonel[]" required><br>
+    <p class="custo-camada-cola">Cola necessária: 0 L | Custo desta camada: R$ 0</p>
+    <button type="button" class="remove-btn">Remover camada</button>
+    `;
+    lista_cola.appendChild(nova);
+    nova.querySelector('.remove-btn').addEventListener('click', () => {
+        nova.remove();
+        calcularCustoCola();
+        contadorCamadasCola--;
+    });
+});
+</script>
+
+</div>
+</body>
+</html>

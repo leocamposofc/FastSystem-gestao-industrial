@@ -3,6 +3,9 @@ densidade_asfalto = 0.0     # em kg/m³
 preco_asfalto_por_tonelada = 0.0  # em R$
 fator_perda = 0.0           # percentual de perda (%)
 fator_compactacao = 0.0     # percentual de compactação (%)
+litros_por_tonel= 200       # quantidade de litros que um tonel de cola tem
+preco_tonel = 1300         # em R$ (preço padrão do tonel de cola)
+frete_tonel = 2000         # em R$ (frete padrão por tonel)
 
 # Custos adicionais (consultados pelo sistema)
 custo_mao_obra = 100.0     # em R$
