@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, render_template_string, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, url_for
 from Configuracoes import configuracoes
 import io
 from reportlab.lib.pagesizes import A4
@@ -7,7 +7,7 @@ from reportlab.pdfgen import canvas
 import sqlite3
 from Configuracoes import configuracoes
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='telas_html')
 
 
 def calcular_custo(metragem, espessura_cm, preco_por_m3=250):
@@ -18,7 +18,13 @@ def calcular_custo(metragem, espessura_cm, preco_por_m3=250):
 
 @app.route("/cotador", methods=["GET", "POST"])
 def index():
-    from telas_html.cotador import HTML
+    # conectando ao banco de dados
+    conn = sqlite3.connect("clientes.db")
+    cursor = conn.cursor()
+    #buscando clientes
+    cursor.execute("SELECT id, nome, empresa FROM clientes")
+    clientes = cursor.fetchall()
+
     custo = None
     erro = ""
     # Preços dos equipamentos
@@ -44,8 +50,10 @@ def index():
             custo = f"{custo:.2f}"
         except ValueError:
             erro = "Por favor, digite valores numéricos válidos."
-    return render_template_string(
-        HTML,
+    return render_template(
+        ("cotador.html"),
+        clientes=clientes,
+        titulo_pagina="Cotador de Capeamento de Asfalto",
         custo=custo,
         erro=erro,
         preco_rolo=precos["rolo_compactor"],
@@ -146,90 +154,94 @@ def emitir_orcamento():
 
 @app.route("/", methods=["GET"])
 def inicio():
-    from telas_html.inicio import HTML
-    return render_template_string(HTML)
+    return render_template("inicio.html", titulo_pagina="Início")
 
 
 @app.route("/clientes", methods=["GET", "POST"])
 def clientes():
-    from telas_html.clientes import HTML
-    erro = ""
-    sucesso = ""
-    clientes_lista = []
-    # Deletar cliente se solicitado
-    if request.method == "POST" and "deletar_id" in request.form:
-        deletar_id = request.form.get("deletar_id")
-        senha = request.form.get("senha_deletar", "")
-        if senha == configuracoes.senha_de_seguranca:
-            try:
-                banco = sqlite3.connect('clientes.db')
-                cursor = banco.cursor()
-                cursor.execute(
-                    "DELETE FROM clientes WHERE id = ?", (deletar_id,))
-                banco.commit()
-                sucesso = "Cliente deletado com sucesso!"
-            except Exception as e:
-                erro = f"Erro ao deletar cliente: {str(e)}"
-            finally:
-                banco.close()
+    mensagem = ""
+    
+    if request.method == "POST":
+        # Deletar cliente
+        if "deletar_id" in request.form:
+            deletar_id = request.form.get("deletar_id")
+            senha = request.form.get("senha_deletar", "")
+            if senha == configuracoes.senha_de_seguranca:
+                try:
+                    banco = sqlite3.connect('clientes.db')
+                    cursor = banco.cursor()
+                    cursor.execute("DELETE FROM clientes WHERE id = ?", (deletar_id,))
+                    banco.commit()
+                    mensagem = "Cliente deletado com sucesso!"
+                except Exception as e:
+                    mensagem = f"Erro ao deletar cliente: {str(e)}"
+                finally:
+                    banco.close()
+            else:
+                mensagem = "Senha incorreta para deletar cliente."
+        # Cadastro de cliente
         else:
-            erro = "Senha incorreta para deletar cliente."
-    # Cadastro de cliente
-    elif request.method == "POST":
-        nome = request.form.get("nome", "").strip()
-        sobrenome = request.form.get("sobrenome", "").strip()
-        empresa = request.form.get("empresa", "").strip()
-        cnpj = request.form.get("cnpj", "").strip()
-        celular1 = request.form.get("celular1", "").strip()
-        celular2 = request.form.get("celular2", "").strip()
-        email = request.form.get("email", "").strip()
-        tipo = request.form.get("tipo", "").strip()
-        endereco = request.form.get("endereco", "").strip()
-        cidade = request.form.get("cidade", "").strip()
-        estado = request.form.get("estado", "").strip()
-        cep = request.form.get("cep", "").strip()
-        observacoes = request.form.get("observacoes", "").strip()
-        # Campos obrigatórios: nome, celular1, email
-        if nome and celular1 and email:
-            try:
-                banco = sqlite3.connect('clientes.db')
-                cursor = banco.cursor()
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS clientes (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        nome TEXT NOT NULL,
-                        sobrenome TEXT,
-                        empresa TEXT,
-                        cnpj TEXT,
-                        celular1 TEXT,
-                        celular2 TEXT,
-                        email TEXT,
-                        tipo TEXT,
-                        endereco TEXT,
-                        cidade TEXT,
-                        estado TEXT,
-                        cep TEXT,
-                        observacoes TEXT
-                    )
-                """)
-                cursor.execute("""
-                    INSERT INTO clientes (
+            id = request.form.get("id", "").strip()
+            nome = request.form.get("nome", "").strip()
+            sobrenome = request.form.get("sobrenome", "").strip()
+            empresa = request.form.get("empresa", "").strip()
+            cnpj = request.form.get("cnpj", "").strip()
+            celular1 = request.form.get("celular1", "").strip()
+            celular2 = request.form.get("celular2", "").strip()
+            email = request.form.get("email", "").strip()
+            tipo = request.form.get("tipo", "").strip()
+            endereco = request.form.get("endereco", "").strip()
+            cidade = request.form.get("cidade", "").strip()
+            estado = request.form.get("estado", "").strip()
+            cep = request.form.get("cep", "").strip()
+            observacoes = request.form.get("observacoes", "").strip()
+
+            if nome and celular1 and email:
+                try:
+                    banco = sqlite3.connect('clientes.db')
+                    cursor = banco.cursor()
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS clientes (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            nome TEXT NOT NULL,
+                            sobrenome TEXT,
+                            empresa TEXT,
+                            cnpj TEXT,
+                            celular1 TEXT,
+                            celular2 TEXT,
+                            email TEXT,
+                            tipo TEXT,
+                            endereco TEXT,
+                            cidade TEXT,
+                            estado TEXT,
+                            cep TEXT,
+                            observacoes TEXT
+                        )
+                    """)
+                    cursor.execute("""
+                        INSERT INTO clientes (
+                            nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
+                            endereco, cidade, estado, cep, observacoes
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
                         nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
                         endereco, cidade, estado, cep, observacoes
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
-                    endereco, cidade, estado, cep, observacoes
-                ))
-                banco.commit()
-                sucesso = "Cliente cadastrado com sucesso!"
-            except Exception as e:
-                erro = f"Erro ao cadastrar cliente: {str(e)}"
-            finally:
-                banco.close()
-        else:
-            erro = "Preencha os campos obrigatórios: Nome, Celular1 e Email."
-    # Buscar clientes do banco
+                    ))
+                    banco.commit()
+                    mensagem = "Cliente cadastrado com sucesso!"
+                except Exception as e:
+                    mensagem = f"Erro ao cadastrar cliente: {str(e)}"
+                finally:
+                    banco.close()
+            else:
+                mensagem = "Preencha os campos obrigatórios: Nome, Celular1 e Email."
+
+        # Redireciona para GET para evitar reenvio no F5
+        return redirect(url_for("clientes", mensagem=mensagem))
+
+    # GET: busca clientes e pega mensagem da query string
+    mensagem = request.args.get("mensagem", "")
+    clientes_lista = []
     try:
         banco = sqlite3.connect('clientes.db')
         cursor = banco.cursor()
@@ -258,16 +270,16 @@ def clientes():
                 "observacoes": row[13]
             })
     except Exception as e:
-        erro = f"Erro ao buscar clientes: {str(e)}"
+        mensagem = f"Erro ao buscar clientes: {str(e)}"
     finally:
         banco.close()
-    return render_template_string(
-        HTML,
-        clientes=clientes_lista,
-        erro=erro,
-        sucesso=sucesso
-    )
 
+    return render_template("clientes.html", clientes=clientes_lista, sucesso=mensagem)
+
+
+@app.route("/exemplo", methods=["GET", "POST"])
+def exemplo():
+    return render_template("exemplo.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Orçamento Completo Pavimentação</title>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eceff1; padding: 20px; }
+    .container { max-width: 1100px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 25px; color: #37474f; }
+    .grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .item { background: #fafafa; padding: 12px; border-radius: 10px; width: 150px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; }
+    .item:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .item label { margin-bottom: 6px; font-weight: 600; font-size: 13px; text-align: center; color: #37474f; }
+    .controls { display: flex; gap: 4px; margin-bottom: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .controls input[type=number] { width: 45px; text-align: center; padding: 4px; border-radius: 6px; border: 1px solid #ccc; font-size: 12px; }
+    .controls button { padding: 4px 8px; border: none; border-radius: 6px; background-color: #1976d2; color: white; cursor: pointer; font-size: 12px; transition: background 0.2s; }
+    .controls button:hover { background-color: #1565c0; }
+    .total { font-weight: bold; font-size: 13px; color: #263238; }
+    .section-title { width: 100%; text-align: center; font-weight: bold; margin: 12px 0 6px; font-size: 14px; color: #546e7a; border-bottom: 1px solid #cfd8dc; padding-bottom: 4px; }
+    .total-geral { text-align: right; margin-top: 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: flex-end; align-items: center; gap: 12px; color: #37474f; }
+    .total-geral input { width: 50px; text-align: center; padding: 4px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; }
+    /* Cores por categoria */
+    .funcionarios { background: #e3f2fd; }
+    .maquinas { background: #fff3e0; }
+    .adicionais { background: #f1f8e9; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="grid">
+        <!-- Funcionários -->
+        <div class="section-title">Funcionários</div>
+        <div class="item funcionarios">
+            <label>Equipe</label>
+            <div class="controls">
+                <input type="number" id="func_valor_unitario" value="120" min="0" step="0.01" onchange="calcular('func')">
+                <button type="button" onclick="decrement('func')">-</button>
+                <input type="number" id="func" value="0" min="0" onchange="calcular('func')">
+                <button type="button" onclick="increment('func')">+</button>
+            </div>
+            <div class="total">R$ <span id="func_total">0</span></div>
+        </div>
+
+        <div class="item funcionarios">
+            <label>Alimentação</label>
+            <div class="controls">
+                <input type="number" id="alimentacao_valor_unitario" value="30" min="0" step="0.01" onchange="calcular('alimentacao')">
+                <button type="button" onclick="decrement('alimentacao')">-</button>
+                <input type="number" id="alimentacao" value="0" min="0" onchange="calcular('alimentacao')">
+                <button type="button" onclick="increment('alimentacao')">+</button>
+            </div>
+            <div class="total">R$ <span id="alimentacao_total">0</span></div>
+        </div>
+
+        <div class="item funcionarios">
+            <label>Estadia</label>
+            <div class="controls">
+                <input type="number" id="estadia_valor_unitario" value="80" min="0" step="0.01" onchange="calcular('estadia')">
+                <button type="button" onclick="decrement('estadia')">-</button>
+                <input type="number" id="estadia" value="0" min="0" onchange="calcular('estadia')">
+                <button type="button" onclick="increment('estadia')">+</button>
+            </div>
+            <div class="total">R$ <span id="estadia_total">0</span></div>
+        </div>
+
+        <!-- Máquinas -->
+        <div class="section-title">Máquinas</div>
+        <div class="item maquinas">
+            <label>Caminhão Basculante</label>
+            <div class="controls">
+                <input type="number" id="caminhao_valor_unitario" value="600" min="0" step="0.01" onchange="calcular('caminhao')">
+                <button type="button" onclick="decrement('caminhao')">-</button>
+                <input type="number" id="caminhao" value="0" min="0" onchange="calcular('caminhao')">
+                <button type="button" onclick="increment('caminhao')">+</button>
+            </div>
+            <div class="total">R$ <span id="caminhao_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Pá Carregadeira</label>
+            <div class="controls">
+                <input type="number" id="pa_valor_unitario" value="450" min="0" step="0.01" onchange="calcular('pa')">
+                <button type="button" onclick="decrement('pa')">-</button>
+                <input type="number" id="pa" value="0" min="0" onchange="calcular('pa')">
+                <button type="button" onclick="increment('pa')">+</button>
+            </div>
+            <div class="total">R$ <span id="pa_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Rolo Compactador</label>
+            <div class="controls">
+                <input type="number" id="rolo_valor_unitario" value="350" min="0" step="0.01" onchange="calcular('rolo')">
+                <button type="button" onclick="decrement('rolo')">-</button>
+                <input type="number" id="rolo" value="0" min="0" onchange="calcular('rolo')">
+                <button type="button" onclick="increment('rolo')">+</button>
+            </div>
+            <div class="total">R$ <span id="rolo_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Pavimentadora</label>
+            <div class="controls">
+                <input type="number" id="pav_valor_unitario" value="800" min="0" step="0.01" onchange="calcular('pav')">
+                <button type="button" onclick="decrement('pav')">-</button>
+                <input type="number" id="pav" value="0" min="0" onchange="calcular('pav')">
+                <button type="button" onclick="increment('pav')">+</button>
+            </div>
+            <div class="total">R$ <span id="pav_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Compactador Manual</label>
+            <div class="controls">
+                <input type="number" id="comp_valor_unitario" value="50" min="0" step="0.01" onchange="calcular('comp')">
+                <button type="button" onclick="decrement('comp')">-</button>
+                <input type="number" id="comp" value="0" min="0" onchange="calcular('comp')">
+                <button type="button" onclick="increment('comp')">+</button>
+            </div>
+            <div class="total">R$ <span id="comp_total">0</span></div>
+        </div>
+
+        <!-- Custos Adicionais -->
+        <div class="section-title">Custos Adicionais</div>
+        <div class="item adicionais">
+            <label>Sinalização</label>
+            <div class="controls">
+                <input type="number" id="sinal_valor_unitario" value="50" min="0" step="0.01" onchange="calcular('sinal')">
+                <button type="button" onclick="decrement('sinal')">-</button>
+                <input type="number" id="sinal" value="0" min="0" onchange="calcular('sinal')">
+                <button type="button" onclick="increment('sinal')">+</button>
+            </div>
+            <div class="total">R$ <span id="sinal_total">0</span></div>
+        </div>
+
+        <div class="item adicionais">
+            <label>Transporte</label>
+            <div class="controls">
+                <input type="number" id="transporte_valor_unitario" value="100" min="0" step="0.01" onchange="calcular('transporte')">
+                <button type="button" onclick="decrement('transporte')">-</button>
+                <input type="number" id="transporte" value="0" min="0" onchange="calcular('transporte')">
+                <button type="button" onclick="increment('transporte')">+</button>
+            </div>
+            <div class="total">R$ <span id="transporte_total">0</span></div>
+        </div>
+
+        <div class="item adicionais">
+            <label>Outros</label>
+            <div class="controls">
+                <input type="number" id="outros_valor_unitario" value="0" min="0" step="0.01" onchange="calcular('outros')">
+                <button type="button" onclick="decrement('outros')">-</button>
+                <input type="number" id="outros" value="0" min="0" onchange="calcular('outros')">
+                <button type="button" onclick="increment('outros')">+</button>
+            </div>
+            <div class="total">R$ <span id="outros_total">0</span></div>
+        </div>
+    </div>
+
+    <!-- Total geral com multiplicador -->
+    <div class="total-geral">
+        <label for="multiplicador">Multiplicador:</label>
+        <input type="number" id="multiplicador" value="1" min="1" onchange="atualizarTotalGeral()">
+        Total Geral: R$ <span id="total_geral">0</span>
+    </div>
+
+</div>
+
+<script>
+const itens = ['func','alimentacao','estadia','caminhao','pa','rolo','pav','comp','sinal','transporte','outros'];
+
+function calcular(id) {
+    const quantidade = parseInt(document.getElementById(id).value) || 0;
+    const valorUnitario = parseFloat(document.getElementById(id + '_valor_unitario').value) || 0;
+    document.getElementById(id + '_total').innerText = (quantidade * valorUnitario).toFixed(2);
+    atualizarTotalGeral();
+}
+
+function increment(id) {
+    const input = document.getElementById(id);
+    input.value = parseInt(input.value || 0) + 1;
+    calcular(id);
+}
+
+function decrement(id) {
+    const input = document.getElementById(id);
+    input.value = Math.max(0, parseInt(input.value || 0) - 1);
+    calcular(id);
+}
+
+function atualizarTotalGeral() {
+    let totalGeral = 0;
+    itens.forEach(id => {
+        totalGeral += parseFloat(document.getElementById(id + '_total').innerText) || 0;
+    });
+    const multiplicador = parseInt(document.getElementById('multiplicador').value) || 1;
+    document.getElementById('total_geral').innerText = (totalGeral * multiplicador).toFixed(2);
+}
+
+// Inicializa todos os totais
+itens.forEach(id => calcular(id));
+</script>
+
+</body>
+</html>
