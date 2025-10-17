@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<title>{{ titulo_pagina }}</title>
+{% extends "base.html" %}
+{% block head %}
 <style>
     :root{
         --card-bg: #ffffff;
@@ -168,8 +165,9 @@ function selecionarCliente() {
     }
 }
 </script>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
 <h2>Selecione o cliente:</h2>
 
 <!-- Seleção de cliente -->
@@ -563,5 +561,4 @@ document.addEventListener("DOMContentLoaded", () => {
     calcularCustoCola();
 });
 </script>
-</body>
-</html>
+{% endblock %}
