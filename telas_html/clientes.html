@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Clientes</title>
+{% extends "base.html" %}
+{% block head %}
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; }
         .container { max-width: 900px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #ccc; }
@@ -27,10 +24,9 @@
             z-index: 999;
         }
     </style>
-</head>
-<body>
+    {% endblock %}
+{% block content %}
     <div id="popup"></div>
-    <div class="container">
         <h2>Cadastro de Clientes</h2>
         <form method="post">
             Nome *: <input type="text" name="nome" placeholder="obrigatório" required><br>
@@ -41,8 +37,7 @@
             Celular 2: <input type="text" name="celular2"><br>
             Email *: <input type="email" name="email" placeholder="obrigatório" required><br>
             Tipo: 
-            <select name="tipo">
-                <option value="">Selecione</option>
+            <select name="tipo *" placeholder="obrigatório" required>
                 <option value="cliente">Cliente</option>
                 <option value="fornecedor">Fornecedor</option>
             </select><br>
@@ -100,7 +95,6 @@
             {% endfor %}
         </table>
         <p style="font-size:12px;">* Campos obrigatórios</p>
-    </div>
 
     <script>
         function showPopup(message) {
@@ -116,5 +110,4 @@
         showPopup("{{ sucesso }}");
         {% endif %}
     </script>
-</body>
-</html>
+{% endblock %}

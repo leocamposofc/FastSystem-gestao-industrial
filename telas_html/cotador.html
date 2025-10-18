@@ -1,6 +1,25 @@
 {% extends "base.html" %}
 {% block head %}
 <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eceff1; padding: 20px; }
+    .container { max-width: 1100px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 25px; color: #37474f; }
+    .grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .item { background: #fafafa; padding: 12px; border-radius: 10px; width: 150px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; }
+    .item:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .item label { margin-bottom: 6px; font-weight: 600; font-size: 13px; text-align: center; color: #37474f; }
+    .controls { display: flex; gap: 4px; margin-bottom: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .controls input[type=number] { width: 45px; text-align: center; padding: 4px; border-radius: 6px; border: 1px solid #ccc; font-size: 12px; }
+    .controls button { padding: 4px 8px; border: none; border-radius: 6px; background-color: #1976d2; color: white; cursor: pointer; font-size: 12px; transition: background 0.2s; }
+    .controls button:hover { background-color: #1565c0; }
+    .total { font-weight: bold; font-size: 13px; color: #263238; }
+    .section-title { width: 100%; text-align: center; font-weight: bold; margin: 12px 0 6px; font-size: 14px; color: #546e7a; border-bottom: 1px solid #cfd8dc; padding-bottom: 4px; }
+    .total-geral { text-align: right; margin-top: 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: flex-end; align-items: center; gap: 12px; color: #37474f; }
+    .total-geral input { width: 50px; text-align: center; padding: 4px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; }
+    /* Cores por categoria */
+    .funcionarios { background: #e3f2fd; }
+    .maquinas { background: #fff3e0; }
+    .adicionais { background: #f1f8e9; }
     :root{
         --card-bg: #ffffff;
         --card-alt: #fbfcfd;
@@ -152,6 +171,20 @@
         .row { flex-direction: column; }
         input[type="number"], input[type="text"], select { width: 100%; }
     }
+    #divOcultaTerraplanagem {
+      display: none; /* começa invisível */
+      margin-top: 10px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 8px;
+    }
+    /* Botões estilo toggle */
+    input[name="mostrar_terraplanagem"] { display: none; }
+
+    input[name="mostrar_terraplanagem"]:checked + .btn-radio {
+        background-color: var(--accent);
+        color: white;
+    }
 </style>
 <script>
 // Função para mostrar o cotador após escolher o cliente
@@ -193,127 +226,126 @@ function selecionarCliente() {
 
 <hr>
 
-<!-- Aqui fica o restante do cotador, inicialmente escondido -->
+<!-- INICIO DO BODY -->
 <div id="cotadorDiv" style="display: none;">
 
-    <div class="container">
-    <h2>Calculadora de Capeamento de Asfalto</h2>
+<div class="container">
+<h2>Calculadora de Capeamento de Asfalto</h2>
 
-    <!-- MASSA -->
-    <h3 class="section-title">MASSA ASFÁLTICA</h3>
-    <div id="massa-lista">
-        <div class="massa-bloco">
-            <h4>Camada 1</h4>
+<!-- MASSA -->
+<h3 class="section-title">MASSA ASFÁLTICA</h3>
+<div id="massa-lista">
+    <div class="massa-bloco">
+        <h4>Camada 1</h4>
 
-            <div class="row">
-                <div class="field">
-                    <label>Tipo de massa</label>
-                    <div>
-                        <input type="radio" id="binder1"  name="tipo_massa_1" value="binder" required>
-                        <label for="binder1" class="btn-radio">Binder</label>
+        <div class="row">
+            <div class="field">
+                <label>Tipo de massa</label>
+                <div>
+                    <input type="radio" id="binder1"  name="tipo_massa_1" value="binder" required>
+                    <label for="binder1" class="btn-radio">Binder</label>
 
-                        <input type="radio" id="cbuq1" name="tipo_massa_1" value="cbuq">
-                        <label for="cbuq1" class="btn-radio">CBUQ</label>
+                    <input type="radio" id="cbuq1" name="tipo_massa_1" value="cbuq">
+                    <label for="cbuq1" class="btn-radio">CBUQ</label>
 
-                        <input type="radio" id="brita1" name="tipo_massa_1" value="brita">
-                        <label for="brita1" class="btn-radio">Brita</label>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label>Metragem (m²)</label>
-                    <input type="number" step="any" name="metragem[]" placeholder="ex: 1000" required>
-                </div>
-
-                <div class="field">
-                    <label>Espessura (cm)</label>
-                    <input type="number" step="any" name="expessura[]" placeholder="ex: 4" required>
-                </div>
-
-                <div class="field">
-                    <label>Densidade (t/m³)</label>
-                    <input type="number" step="any" name="densidade[]" placeholder="ex: 2.4" required>
+                    <input type="radio" id="brita1" name="tipo_massa_1" value="brita">
+                    <label for="brita1" class="btn-radio">Brita</label>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="field">
-                    <label>Preço da massa (R$/t)</label>
-                    <input type="number" step="any" name="preco_massa[]" placeholder="sugerido: {{ preco_massa }}" required>
-                </div>
-                <div class="field">
-                    <label>Margem de perda/compactação (%)</label>
-                    <input type="number" step="any" name="perda[]" value="{{ perda }}" required>
-                </div>
-                <div class="field">
-                    <label>Frete (por viagem 20t)</label>
-                    <input type="number" step="any" name="frete[]" placeholder="ex: 2000" required>
-                </div>
+            <div class="field">
+                <label>Metragem (m²)</label>
+                <input type="number" step="any" name="metragem[]" placeholder="ex: 1000" required>
+            </div>
+
+            <div class="field">
+                <label>Espessura (cm)</label>
+                <input type="number" step="any" name="expessura[]" placeholder="ex: 4" required>
+            </div>
+
+            <div class="field">
+                <label>Densidade (t/m³)</label>
+                <input type="number" step="any" name="densidade[]" placeholder="ex: 2.4" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label>Preço da massa (R$/t)</label>
+                <input type="number" step="any" name="preco_massa[]" placeholder="sugerido: {{ preco_massa }}" required>
+            </div>
+            <div class="field">
+                <label>Margem de perda/compactação (%)</label>
+                <input type="number" step="any" name="perda[]" value="{{ perda }}" required>
+            </div>
+            <div class="field">
+                <label>Frete (por viagem 20t)</label>
+                <input type="number" step="any" name="frete[]" placeholder="ex: 2000" required>
             </div>
         </div>
     </div>
-
+</div>
     <div class="summary">
         <strong>Total das massas: R$ <span id="custo-total">0.00</span></strong>
     </div>
     <div class="controls">
         <button type="button" id="add-camada" class="add-camada-btn">+ Adicionar camada de massa</button>
     </div>
-
     <hr>
 
-    <!-- IMPRIMAÇÃO / COLA -->
-    <h3 class="section-title">IMPRIMAÇÃO (COLA)</h3>
-    <div id="cola-lista">
-        <div class="massa-bloco cola-bloco">
-            <h4>Imprimação 1</h4>
 
-            <div class="row">
-                <div class="field">
-                    <label>Tipo de cola</label>
-                    <div>
-                        <input type="radio" id="cm30_1" name="tipo_cola_1" value="CM-30" required>
-                        <label for="cm30_1" class="btn-radio">CM-30</label>
+<!-- IMPRIMAÇÃO / COLA -->
+<h3 class="section-title">IMPRIMAÇÃO (COLA)</h3>
+<div id="cola-lista">
+    <div class="massa-bloco cola-bloco">
+        <h4>Imprimação 1</h4>
 
-                        <input type="radio" id="rr2_1" name="tipo_cola_1" value="RR-2C">
-                        <label for="rr2_1" class="btn-radio">RR-2C</label>
-                    </div>
-                </div>
+        <div class="row">
+            <div class="field">
+                <label>Tipo de cola</label>
+                <div>
+                    <input type="radio" id="cm30_1" name="tipo_cola_1" value="CM-30" required>
+                    <label for="cm30_1" class="btn-radio">CM-30</label>
 
-                <div class="field">
-                    <label>Metragem (m²)</label>
-                    <input type="number" step="any" name="metragem_cola[]" placeholder="ex: 1000" required>
-                </div>
-
-                <div class="field">
-                    <label>Litro por metro (L/m²)</label>
-                    <input type="number" step="any" name="litro_m[]" placeholder="ex: 0.5" required>
-                </div>
-
-                <div class="field">
-                    <label>Litros por tonel</label>
-                    <input type="number" step="any" name="litro_tonel[]" placeholder="ex: 1000" required>
+                    <input type="radio" id="rr2_1" name="tipo_cola_1" value="RR-2C">
+                    <label for="rr2_1" class="btn-radio">RR-2C</label>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="field">
-                    <label>Preço do tonel (R$)</label>
-                    <input type="number" step="any" name="preco_tonel[]" placeholder="ex: {{ preco_tonel }}" required>
-                </div>
+            <div class="field">
+                <label>Metragem (m²)</label>
+                <input type="number" step="any" name="metragem_cola[]" placeholder="ex: 1000" required>
+            </div>
 
-                <div class="field">
-                    <label>Margem de perda (%)</label>
-                    <input type="number" step="any" name="perda[]" value="{{ perda }}" required>
-                </div>
+            <div class="field">
+                <label>Litro por metro (L/m²)</label>
+                <input type="number" step="any" name="litro_m[]" placeholder="ex: 0.5" required>
+            </div>
 
-                <div class="field">
-                    <label>Frete (por tonel)</label>
-                    <input type="number" step="any" name="frete_tonel[]" placeholder="ex: {{ frete_tonel }}" required>
-                </div>
+            <div class="field">
+                <label>Litros por tonel</label>
+                <input type="number" step="any" name="litro_tonel[]" placeholder="ex: 1000" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label>Preço do tonel (R$)</label>
+                <input type="number" step="any" name="preco_tonel[]" placeholder="ex: {{ preco_tonel }}" required>
+            </div>
+
+            <div class="field">
+                <label>Margem de perda (%)</label>
+                <input type="number" step="any" name="perda[]" value="{{ perda }}" required>
+            </div>
+
+            <div class="field">
+                <label>Frete (por tonel)</label>
+                <input type="number" step="any" name="frete_tonel[]" placeholder="ex: {{ frete_tonel }}" required>
             </div>
         </div>
     </div>
+</div>
     <div class="summary">
         <strong>Total das imprimações: R$ <span id="custo-total-cola">0.00</span></strong>
     </div>
@@ -324,28 +356,298 @@ function selecionarCliente() {
         <strong>Total Geral (Massas + Colas): R$ <span id="custo-total-geral">0.00</span></strong>
     </div>
     <hr>
-    
 
 
 
 
 
+    <!-- BOTAO TERRAPLANAGEM -->
+<div class="container" style="text-align: center;">
+    <h3 class="section-title" style="text-align: center;">Usará terraplanagem?</h3>
+    <div style="display: flex; justify-content: center; gap: 12px; margin-top: 8px;">
+        <input type="radio" id="terra_sim" name="mostrar_terraplanagem" value="sim" onchange="mostrarTerraplanagem()">
+        <label for="terra_sim" class="btn-radio">Sim</label>
 
-    <hr>
-    <!-- sessao_orcamento sendo chamada -->
-    <h2>inclusão de custos</h2>
+        <input type="radio" id="terra_nao" name="mostrar_terraplanagem" value="nao" onchange="mostrarTerraplanagem()">
+        <label for="terra_nao" class="btn-radio">Não</label>
+    </div>
+</div>
 
-    {% include 'sessao_orcamento.html' %}
 
-    <div>Total obtido da sessão: R$ <span id="total_sessao_principal">0</span></div>
+<!-- Div terraplanagem inicialmente oculta -->
+<div id="divOcultaTerraplanagem">
+    <h3 class="section-title">TERRAPLANAGEM</h3>
+    <div class="massa-bloco cola-bloco">
+        <h4>Camada 1</h4>
 
-    <button type="button" onclick="document.getElementById('total_sessao_principal').innerText = document.getElementById('total_geral').innerText;">
-        Atualizar Total no Cotador
-    </button>
+        <div class="row">
+            <div class="field">
+                <label>Tipo de operação</label>
+                <select name="tipo_operacao[]" required>
+                    <option value="corte">Corte</option>
+                    <option value="aterro">Aterro</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Área (m²)</label>
+                <input type="number" step="any" name="area_terr[]" placeholder="ex: 1000" required>
+            </div>
+
+            <div class="field">
+                <label>Espessura (m)</label>
+                <input type="number" step="any" name="espessura_terr[]" placeholder="ex: 0.5" required>
+            </div>
+
+            <div class="field">
+                <label>Densidade do solo (t/m³)</label>
+                <input type="number" step="any" name="densidade_terr[]" placeholder="ex: 1.6" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="field">
+                <label>Custo por tonelada (R$/t)</label>
+                <input type="number" step="any" name="preco_terr[]" placeholder="ex: 50" required>
+            </div>
+
+            <div class="field">
+                <label>Margem de perda/compactação (%)</label>
+                <input type="number" step="any" name="perda_terr[]" value="5" required>
+            </div>
+
+            <div class="field">
+                <label>Transporte (R$/t)</label>
+                <input type="number" step="any" name="frete_terr[]" placeholder="ex: 10" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="summary">
+        <strong>Total da terraplanagem: R$ <span id="custo-total-terra">0.00</span></strong>
+    </div>
+</div>
+<hr>
+
+<!-- CUSTOS EXTRAS-->
+<div class="container">
+    <div class="grid">
+        <!-- Funcionários -->
+        <div class="section-title">Funcionários</div>
+        <div class="item funcionarios">
+            <label>Equipe</label>
+            <div class="controls">
+                <input type="number" id="func_valor_unitario" value="120" min="0" step="0.01" onchange="calcular('func')">
+                <button type="button" onclick="decrement('func')">-</button>
+                <input type="number" id="func" value="0" min="0" onchange="calcular('func')">
+                <button type="button" onclick="increment('func')">+</button>
+            </div>
+            <div class="total">R$ <span id="func_total">0</span></div>
+        </div>
+
+        <div class="item funcionarios">
+            <label>Alimentação</label>
+            <div class="controls">
+                <input type="number" id="alimentacao_valor_unitario" value="30" min="0" step="0.01" onchange="calcular('alimentacao')">
+                <button type="button" onclick="decrement('alimentacao')">-</button>
+                <input type="number" id="alimentacao" value="0" min="0" onchange="calcular('alimentacao')">
+                <button type="button" onclick="increment('alimentacao')">+</button>
+            </div>
+            <div class="total">R$ <span id="alimentacao_total">0</span></div>
+        </div>
+
+        <div class="item funcionarios">
+            <label>Estadia</label>
+            <div class="controls">
+                <input type="number" id="estadia_valor_unitario" value="80" min="0" step="0.01" onchange="calcular('estadia')">
+                <button type="button" onclick="decrement('estadia')">-</button>
+                <input type="number" id="estadia" value="0" min="0" onchange="calcular('estadia')">
+                <button type="button" onclick="increment('estadia')">+</button>
+            </div>
+            <div class="total">R$ <span id="estadia_total">0</span></div>
+        </div>
+
+        <!-- Máquinas -->
+        <div class="section-title">Máquinas</div>
+        <div class="item maquinas">
+            <label>Caminhão Basculante</label>
+            <div class="controls">
+                <input type="number" id="caminhao_valor_unitario" value="600" min="0" step="0.01" onchange="calcular('caminhao')">
+                <button type="button" onclick="decrement('caminhao')">-</button>
+                <input type="number" id="caminhao" value="0" min="0" onchange="calcular('caminhao')">
+                <button type="button" onclick="increment('caminhao')">+</button>
+            </div>
+            <div class="total">R$ <span id="caminhao_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Pá Carregadeira</label>
+            <div class="controls">
+                <input type="number" id="pa_valor_unitario" value="450" min="0" step="0.01" onchange="calcular('pa')">
+                <button type="button" onclick="decrement('pa')">-</button>
+                <input type="number" id="pa" value="0" min="0" onchange="calcular('pa')">
+                <button type="button" onclick="increment('pa')">+</button>
+            </div>
+            <div class="total">R$ <span id="pa_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Rolo Compactador</label>
+            <div class="controls">
+                <input type="number" id="rolo_valor_unitario" value="350" min="0" step="0.01" onchange="calcular('rolo')">
+                <button type="button" onclick="decrement('rolo')">-</button>
+                <input type="number" id="rolo" value="0" min="0" onchange="calcular('rolo')">
+                <button type="button" onclick="increment('rolo')">+</button>
+            </div>
+            <div class="total">R$ <span id="rolo_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Pavimentadora</label>
+            <div class="controls">
+                <input type="number" id="pav_valor_unitario" value="800" min="0" step="0.01" onchange="calcular('pav')">
+                <button type="button" onclick="decrement('pav')">-</button>
+                <input type="number" id="pav" value="0" min="0" onchange="calcular('pav')">
+                <button type="button" onclick="increment('pav')">+</button>
+            </div>
+            <div class="total">R$ <span id="pav_total">0</span></div>
+        </div>
+
+        <div class="item maquinas">
+            <label>Compactador Manual</label>
+            <div class="controls">
+                <input type="number" id="comp_valor_unitario" value="50" min="0" step="0.01" onchange="calcular('comp')">
+                <button type="button" onclick="decrement('comp')">-</button>
+                <input type="number" id="comp" value="0" min="0" onchange="calcular('comp')">
+                <button type="button" onclick="increment('comp')">+</button>
+            </div>
+            <div class="total">R$ <span id="comp_total">0</span></div>
+        </div>
+
+        <!-- Custos Adicionais -->
+        <div class="section-title">Custos Adicionais</div>
+        <div class="item adicionais">
+            <label>Sinalização</label>
+            <div class="controls">
+                <input type="number" id="sinal_valor_unitario" value="50" min="0" step="0.01" onchange="calcular('sinal')">
+                <button type="button" onclick="decrement('sinal')">-</button>
+                <input type="number" id="sinal" value="0" min="0" onchange="calcular('sinal')">
+                <button type="button" onclick="increment('sinal')">+</button>
+            </div>
+            <div class="total">R$ <span id="sinal_total">0</span></div>
+        </div>
+
+        <div class="item adicionais">
+            <label>Transporte</label>
+            <div class="controls">
+                <input type="number" id="transporte_valor_unitario" value="100" min="0" step="0.01" onchange="calcular('transporte')">
+                <button type="button" onclick="decrement('transporte')">-</button>
+                <input type="number" id="transporte" value="0" min="0" onchange="calcular('transporte')">
+                <button type="button" onclick="increment('transporte')">+</button>
+            </div>
+            <div class="total">R$ <span id="transporte_total">0</span></div>
+        </div>
+
+        <div class="item adicionais">
+            <label>Outros</label>
+            <div class="controls">
+                <input type="number" id="outros_valor_unitario" value="0" min="0" step="0.01" onchange="calcular('outros')">
+                <button type="button" onclick="decrement('outros')">-</button>
+                <input type="number" id="outros" value="0" min="0" onchange="calcular('outros')">
+                <button type="button" onclick="increment('outros')">+</button>
+            </div>
+            <div class="total">R$ <span id="outros_total">0</span></div>
+        </div>
+    </div>
+
+    <!-- Total geral com multiplicador -->
+    <div class="total-geral">
+        <label for="multiplicador">Multiplicador (diárias):</label>
+        <input type="number" id="multiplicador" value="1" min="1" onchange="atualizarTotalGeral()">
+        Total Geral: R$ <span id="total_geral">0</span>
+    </div>
+
+</div>
+
+<hr>
+<!--  CALCULO DE RESUMO FINAL -->
+<div class="container">
+    <h2 class="section-title">Resumo Final</h2>
+    <div class="summary">
+        <p><strong>Total Massa Asfáltica:</strong> R$ <span id="resumo_massa">0.00</span></p>
+        <p><strong>Total Imprimação (Cola):</strong> R$ <span id="resumo_cola">0.00</span></p>
+        <p><strong>Total Terraplanagem:</strong> R$ <span id="resumo_terraplanagem">0.00</span></p>
+        <p><strong>Total Custos Extras:</strong> R$ <span id="resumo_extras">0.00</span></p>
+        <hr>
+        <h3>Total Geral do Projeto: R$ <span id="resumo_geral">0.00</span></h3>
+</div>
 
 </div>
 </div>
 <script>
+// custos extras
+const itens = ['func','alimentacao','estadia','caminhao','pa','rolo','pav','comp','sinal','transporte','outros'];
+
+function calcular(id) {
+    const quantidade = parseInt(document.getElementById(id).value) || 0;
+    const valorUnitario = parseFloat(document.getElementById(id + '_valor_unitario').value) || 0;
+    document.getElementById(id + '_total').innerText = (quantidade * valorUnitario).toFixed(2);
+    atualizarTotalGeral();
+}
+
+function increment(id) {
+    const input = document.getElementById(id);
+    input.value = parseInt(input.value || 0) + 1;
+    calcular(id);
+}
+
+function decrement(id) {
+    const input = document.getElementById(id);
+    input.value = Math.max(0, parseInt(input.value || 0) - 1);
+    calcular(id);
+}
+
+function atualizarTotalGeral() {
+    let totalGeral = 0;
+    itens.forEach(id => {
+        totalGeral += parseFloat(document.getElementById(id + '_total').innerText) || 0;
+    });
+    const multiplicador = parseInt(document.getElementById('multiplicador').value) || 1;
+    document.getElementById('total_geral').innerText = (totalGeral * multiplicador).toFixed(2);
+}
+
+// Inicializa todos os totais
+itens.forEach(id => calcular(id));
+
+// ======= TERRAPLANAGEM =======
+function mostrarTerraplanagem() {
+    const selecionado = document.querySelector('input[name="mostrar_terraplanagem"]:checked');
+    const div = document.getElementById('divOcultaTerraplanagem');
+    div.style.display = (selecionado && selecionado.value === 'sim') ? 'block' : 'none';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const camada = document.querySelector('#divOcultaTerraplanagem .massa-bloco');
+
+    function calcularCustoTerraplanagem() {
+        const area = parseFloat(camada.querySelector('[name="area_terr[]"]').value) || 0;
+        const espessura = parseFloat(camada.querySelector('[name="espessura_terr[]"]').value) || 0;
+        const densidade = parseFloat(camada.querySelector('[name="densidade_terr[]"]').value) || 0;
+        const preco = parseFloat(camada.querySelector('[name="preco_terr[]"]').value) || 0;
+        const frete = parseFloat(camada.querySelector('[name="frete_terr[]"]').value) || 0;
+        const perda = parseFloat(camada.querySelector('[name="perda_terr[]"]').value) || 0;
+
+        const toneladasBase = area * espessura * densidade;
+        const toneladas = toneladasBase * (1 + perda / 100);
+        const custo = toneladas * preco + toneladas * frete;
+
+        document.getElementById('custo-total-terra').textContent = custo.toFixed(2);
+    }
+
+    camada.addEventListener('input', calcularCustoTerraplanagem);
+    calcularCustoTerraplanagem();
+});
+    
 document.addEventListener("DOMContentLoaded", () => {
     // ======= MASSA =======
     let contadorCamadas = 1;
@@ -561,4 +863,93 @@ document.addEventListener("DOMContentLoaded", () => {
     calcularCustoCola();
 });
 </script>
+<script>
+/*
+  Trecho mínimo para integrar ao seu JS existente.
+  - Não remove nem substitui nada.
+  - Observa os elementos de subtotal que você já calcula e atualiza o resumo.
+  Cole ANTES do </body> ou no final dos seus scripts.
+*/
+
+(function () {
+  function toNum(v) {
+    const n = parseFloat(String(v).replace(',', '.'));
+    return isNaN(n) ? 0 : n;
+  }
+
+  // Mapeamento entre subtotais existentes e campos de resumo
+  const map = [
+    { source: 'custo-total', target: 'resumo_massa' },
+    { source: 'custo-total-cola', target: 'resumo_cola' },
+    { source: 'custo-total-terra', target: 'resumo_terraplanagem' },
+    // 'total_geral' no layout atual representa os custos extras já multiplicados
+    { source: 'total_geral', target: 'resumo_extras' }
+  ];
+
+  // Atualiza um campo de resumo a partir do elemento fonte
+  function atualizarCampo(sourceId, targetId) {
+    const src = document.getElementById(sourceId);
+    const tgt = document.getElementById(targetId);
+    if (!tgt) return;
+    const val = src ? toNum(src.textContent || src.value || 0) : 0;
+    tgt.textContent = val.toFixed(2);
+  }
+
+  // Atualiza todos os campos mapeados e o resumo geral
+  function atualizarResumoCompleto() {
+    map.forEach(m => atualizarCampo(m.source, m.target));
+    // soma final
+    const massa = toNum(document.getElementById('resumo_massa')?.textContent || 0);
+    const cola = toNum(document.getElementById('resumo_cola')?.textContent || 0);
+    const terra = toNum(document.getElementById('resumo_terraplanagem')?.textContent || 0);
+    const extras = toNum(document.getElementById('resumo_extras')?.textContent || 0);
+    const total = massa + cola + terra + extras;
+    const resumoGeralEl = document.getElementById('resumo_geral');
+    if (resumoGeralEl) resumoGeralEl.textContent = total.toFixed(2);
+  }
+
+  // Observers: quando os subtotais mudarem, atualizamos automaticamente
+  function observeAndSync(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const obs = new MutationObserver(() => atualizarResumoCompleto());
+    obs.observe(el, { childList: true, characterData: true, subtree: true });
+  }
+
+  // Adiciona listeners para inputs que normalmente mudam valores (fallback)
+  function addInputListeners() {
+    document.addEventListener('input', () => {
+      // Pequeno debounce para não disparar em excesso
+      clearTimeout(window.__resumo_timeout);
+      window.__resumo_timeout = setTimeout(atualizarResumoCompleto, 120);
+    }, { capture: true });
+    document.addEventListener('change', () => {
+      clearTimeout(window.__resumo_timeout);
+      window.__resumo_timeout = setTimeout(atualizarResumoCompleto, 80);
+    }, { capture: true });
+  }
+
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', () => {
+    // garante que os spans/resumos existam antes de tentar preencher
+    map.forEach(m => {
+      // se o elemento fonte existir, observa alterações
+      observeAndSync(m.source);
+      // faz uma primeira sincronização
+      atualizarCampo(m.source, m.target);
+    });
+
+    // observe também o subtotal de terraplanagem (custo-total-terra) e o resumo_extras (já feito via total_geral)
+    observeAndSync('custo-total-terra');
+    observeAndSync('total_geral');
+
+    // fallback: escuta inputs e changes para recalcular se outro script apenas altera valores via inputs
+    addInputListeners();
+
+    // primeira atualização completa
+    setTimeout(atualizarResumoCompleto, 50);
+  });
+})();
+</script>
+
 {% endblock %}

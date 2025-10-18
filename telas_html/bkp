@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+    :root{
+        --card-bg: #ffffff;
+        --card-alt: #fbfcfd;
+        --accent: #007bff;
+        --good: #28a745;
+        --danger: #e04f4f;
+        --muted: #6c757d;
+    }
+
+    body {
+        font-family: Inter, Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 20px;
+        color: #222;
+    }
+
+    .container {
+        max-width: 960px;
+        margin: 24px auto;
+        background: #fff;
+        padding: 26px;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(42, 57, 78, 0.08);
+    }
+
+    h2 {
+        margin: 0 0 12px;
+        font-size: 22px;
+        text-align: center;
+    }
+
+    h3.section-title {
+        margin: 18px 0 12px;
+        font-size: 18px;
+        color: var(--muted);
+        text-align: left;
+    }
+
+    .massa-bloco, .cola-bloco {
+        border: 1px solid #e6e9ee;
+        padding: 14px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        box-sizing: border-box;
+    }
+    .massa-bloco:nth-child(even),
+    .cola-bloco:nth-child(even) {
+        background: var(--card-alt);
+    }
+
+    .row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .field label {
+        font-size: 13px;
+        color: #444;
+    }
+
+    input[type="number"], input[type="text"], select {
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid #d0d7df;
+        min-width: 150px;
+        width: 220px;
+    }
+
+    .field.full input,
+    .field.full select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .controls {
+        margin-top: 12px;
+    }
+
+    button {
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(16,24,40,0.04);
+    }
+    .add-camada-btn {
+        background-color: var(--good);
+        color: #fff;
+    }
+    .remove-btn {
+        background: var(--danger);
+        color: #fff;
+    }
+    .btn-radio {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-right: 8px;
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--accent);
+        font-size: 13px;
+    }
+    input[type="radio"] { display:none; }
+    input[type="radio"]:checked + .btn-radio {
+        background: var(--accent);
+        color: #fff;
+    }
+
+    .divisor {
+        border: none;
+        border-top: 1px solid #e6e9ee;
+        margin: 18px 0;
+    }
+
+    .custo-camada, .custo-camada-cola {
+        margin-top: 10px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: #f1f8f5;
+        border: 1px solid #d7efe0;
+        color: #134e3a;
+        font-size: 13px;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .summary {
+        margin-top: 12px;
+        font-size: 15px;
+    }
+
+    @media (max-width:720px){
+        .row { flex-direction: column; }
+        input[type="number"], input[type="text"], select { width: 100%; }
+    }
+    #divOculta {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 8px;
+    }
+</style>
+<script>
+function selecionarCliente() {
+    const cliente = document.getElementById("clienteSelect").value;
+    const cotadorDiv = document.getElementById("cotadorDiv");
+    if (cliente) {
+        cotadorDiv.style.display = "block";
+    } else {
+        cotadorDiv.style.display = "none";
+    }
+}
+
+function mostrarTerraplanagem() {
+    const selecionado = document.querySelector('input[name="mostrar"]:checked');
+    const div = document.getElementById('divOculta');
+
+    if (selecionado && selecionado.value === 'sim') {
+        div.style.display = 'block';
+    } else {
+        div.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<h2>Selecione o cliente:</h2>
+
+<div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0;">
+    <label for="clienteSelect" style="font-size: 14px;">Cliente:</label>
+    <select name="cliente" id="clienteSelect" required onchange="selecionarCliente()"
+            style="padding: 6px 8px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; height: 32px; min-width: 250px;">
+        <option value="">Selecione um cliente</option>
+        {% for id, nome, empresa in clientes %}
+        <option value="{{ id }} | {{ nome }} | {{ empresa }}">
+            {{ id }} - {{ nome }} - {{ empresa }}
+        </option>
+        {% endfor %}
+    </select>
+    <button type="button" id="cadastro_cliente"
+            onclick="window.location.href='/clientes'"
+            style="padding: 6px 12px; font-size: 14px; height: 32px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Cadastrar novo cliente
+    </button>
+</div>
+
+<hr>
+
+<div id="cotadorDiv" style="display: none;">
+    <!-- ... AQUI VAI TODO O RESTANTE DO SEU COTADOR, MASSAS, COLAS ... -->
+    <!-- Terraplanagem -->
+    <div class="container">
+        <label>
+            <input type="radio" name="mostrar" value="sim" onchange="mostrarTerraplanagem()"> Sim
+        </label>
+        <label>
+            <input type="radio" name="mostrar" value="nao" onchange="mostrarTerraplanagem()"> Não
+        </label>
+    </div>
+
+    <div id="divOculta">
+        <h3 class="section-title">TERRAPLANAGEM</h3>
+        <!-- Aqui você pode repetir o bloco de inputs de cola/massa se necessário -->
+        <!-- Use sua estrutura original de inputs aqui -->
+    </div> <!-- fim da divOculta -->
+
+    <hr>
+    <h2>Inclusão de custos</h2>
+    {% include 'sessao_orcamento.html' %}
+    <div>Total obtido da sessão: R$ <span id="total_sessao_principal">0</span></div>
+    <button type="button" onclick="document.getElementById('total_sessao_principal').innerText = document.getElementById('total_geral').innerText;">
+        Atualizar Total no Cotador
+    </button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // ======= MASSA =======
+    let contadorCamadas = 1;
+    const lista = document.getElementById('massa-lista');
+    const addBtn = document.getElementById('add-camada');
+
+    function calcularCusto() {
+        let total = 0;
+        document.querySelectorAll('#massa-lista .massa-bloco').forEach(camada => {
+            const m = parseFloat(camada.querySelector('[name="metragem[]"]').value) || 0;
+            const e = parseFloat(camada.querySelector('[name="expessura[]"]').value) || 0;
+            const d = parseFloat(camada.querySelector('[name="densidade[]"]').value) || 0;
+            const p = parseFloat(camada.querySelector('[name="preco_massa[]"]').value) || 0;
+            const f = parseFloat(camada.querySelector('[name="frete[]"]').value) || 0;
+            const perda = parseFloat(camada.querySelector('[name="perda[]"]').value) || 0;
+
+            const toneladasBase = m * (e / 100) * d;
+            const toneladas = toneladasBase * (1 + perda / 100);
+            const custo = toneladas * p + f;
+            total += custo;
+
+            let pc = camada.querySelector('.custo-camada');
+            if(!pc){
+                pc = document.createElement('p');
+                pc.className = 'custo-camada';
+                camada.appendChild(pc);
+            }
+            pc.textContent = `Massa necessária: ${toneladas.toFixed(2)} t | Custo: R$ ${custo.toFixed(2)}`;
+        });
+        document.getElementById('custo-total').textContent = total.toFixed(2);
+        atualizarTotalGeral();
+    }
+
+    lista.addEventListener('input', calcularCusto);
+    addBtn.addEventListener('click', () => { /* lógica de adicionar camada */ });
+
+    // ======= COLA =======
+    let contadorCola = 1;
+    const listaCola = document.getElementById('cola-lista');
+    const addCola = document.getElementById('add-camada-cola');
+
+    function calcularCustoCola() {
+        let total = 0;
+        document.querySelectorAll('#cola-lista .cola-bloco').forEach(camada => {
+            const m = parseFloat(camada.querySelector('[name="metragem_cola[]"]').value) || 0;
+            const lm = parseFloat(camada.querySelector('[name="litro_m[]"]').value) || 0;
+            const lt = parseFloat(camada.querySelector('[name="litro_tonel[]"]').value) || 0;
+            const pt = parseFloat(camada.querySelector('[name="preco_tonel[]"]').value) || 0;
+            const perda = parseFloat(camada.querySelector('[name="perda[]"]').value) || 0;
+            const frete_tonel = parseFloat(camada.querySelector('[name="frete_tonel[]"]').value) || 0;
+
+            const litrosBase = m * lm;
+            const litrosComPerda = litrosBase * (1 + perda / 100);
+            const toneladas = lt > 0 ? (litrosComPerda / lt) : 0;
+            const custo = toneladas * (pt + frete_tonel);
+            total += custo;
+
+            let pc = camada.querySelector('.custo-camada-cola');
+            if(!pc){
+                pc = document.createElement('p');
+                pc.className = 'custo-camada-cola';
+                camada.appendChild(pc);
+            }
+            pc.textContent = `Cola necessária: ${litrosComPerda.toFixed(2)} L | Custo: R$ ${custo.toFixed(2)}`;
+        });
+        document.getElementById('custo-total-cola').textContent = total.toFixed(2);
+        atualizarTotalGeral();
+    }
+
+    listaCola.addEventListener('input', calcularCustoCola);
+    addCola.addEventListener('click', () => { /* lógica de adicionar cola */ });
+
+    function atualizarTotalGeral(){
+        const tMassas = parseFloat(document.getElementById('custo-total').textContent) || 0;
+        const tColas = parseFloat(document.getElementById('custo-total-cola').textContent) || 0;
+        document.getElementById('custo-total-geral').textContent = (tMassas + tColas).toFixed(2);
+    }
+
+    calcularCusto();
+    calcularCustoCola();
+});
+</script>
+{% endblock %}
