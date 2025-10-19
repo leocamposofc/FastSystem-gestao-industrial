@@ -7,7 +7,7 @@ from reportlab.pdfgen import canvas
 import sqlite3
 from Configuracoes import configuracoes
 
-app = Flask(__name__, template_folder='telas_html')
+app = Flask(__name__, template_folder='templates')
 
 
 def calcular_custo(metragem, espessura_cm, preco_por_m3=250):

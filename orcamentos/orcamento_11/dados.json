@@ -1,0 +1,43 @@
+{
+  "cliente": {
+    "id": "1",
+    "nome": "leonardo",
+    "empresa": "None"
+  },
+  "massas": [
+    {
+      "tipo": "cbuq",
+      "metragem": "1000",
+      "espessura": "3",
+      "densidade": "2.4",
+      "preco": "660",
+      "perda": "10.0",
+      "frete": ""
+    },
+    {
+      "tipo": "binder",
+      "metragem": "500",
+      "espessura": "4",
+      "densidade": "2.5",
+      "preco": "605",
+      "perda": "10.0",
+      "frete": ""
+    }
+  ],
+  "colas": [
+    {
+      "tipo": "CM-30",
+      "metragem": "1000",
+      "litro_m": "1",
+      "litro_tonel": "200",
+      "preco_tonel": "1300",
+      "perda": "10.0",
+      "frete_tonel": "-1"
+    }
+  ],
+  "terra": [],
+  "extras": [],
+  "resumo": {
+    "geral": 116991.5
+  }
+}

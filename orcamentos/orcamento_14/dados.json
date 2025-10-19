@@ -1,0 +1,34 @@
+{
+  "cliente": {
+    "id": "1",
+    "nome": "leonardo",
+    "empresa": "None"
+  },
+  "massas": [
+    {
+      "tipo": "binder",
+      "metragem": "10000",
+      "espessura": "4",
+      "densidade": "2.4",
+      "preco": "660",
+      "perda": "10.0",
+      "frete": ""
+    }
+  ],
+  "colas": [
+    {
+      "tipo": "CM-30",
+      "metragem": "1000",
+      "litro_m": "2",
+      "litro_tonel": "200",
+      "preco_tonel": "1300",
+      "perda": "10.0",
+      "frete_tonel": ""
+    }
+  ],
+  "terra": [],
+  "extras": [],
+  "resumo": {
+    "geral": 748640
+  }
+}

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block head %}
+<!-- Style geral-->
 <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eceff1; padding: 20px; }
     .container { max-width: 1100px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -185,6 +186,44 @@
         background-color: var(--accent);
         color: white;
     }
+</style>
+<!-- Style do botão emitir orçamento -->
+<style>
+/* --- Estilos do botão --- */
+#btnEmitir {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#btnEmitir:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Spinner animado */
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 <script>
 // Função para mostrar o cotador após escolher o cliente
@@ -582,6 +621,13 @@ function selecionarCliente() {
         <h3>Total Geral do Projeto: R$ <span id="resumo_geral">0.00</span></h3>
 </div>
 
+<!-- BOTAO EMITIR ORÇAMENTO -->
+<div style="text-align:center; margin-top: 30px;">
+  <button type="button" id="btnEmitir">
+    💾 Emitir Orçamento
+  </button>
+</div>
+
 </div>
 </div>
 <script>
@@ -863,6 +909,8 @@ document.addEventListener("DOMContentLoaded", () => {
     calcularCustoCola();
 });
 </script>
+
+<!-- SINCRONIZAÇÃO DO RESUMO FINAL -->
 <script>
 /*
   Trecho mínimo para integrar ao seu JS existente.
@@ -950,6 +998,91 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(atualizarResumoCompleto, 50);
   });
 })();
+</script>
+
+<!-- BOTAO EMITIR ORÇAMENTO -->
+
+<script>
+document.getElementById("btnEmitir").addEventListener("click", async function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Emitindo...';
+    btn.style.backgroundColor = "#6c757d"; // cinza enquanto carrega
+
+    try {
+        // Coleta dados do cliente
+        const clienteSel = document.getElementById("clienteSelect").value.split(" | ");
+        const cliente = { id: clienteSel[0], nome: clienteSel[1], empresa: clienteSel[2] };
+
+        const dados = {
+            cliente,
+            massas: [],
+            colas: [],
+            terra: [],
+            extras: [],
+            resumo: {
+                geral: parseFloat(document.getElementById("resumo_geral").textContent) || 0
+            }
+        };
+
+        // MASSAS
+        document.querySelectorAll("#massa-lista .massa-bloco").forEach(c => {
+            const tipo = c.querySelector("input[name^='tipo_massa_']:checked")?.value;
+            dados.massas.push({
+                tipo,
+                metragem: c.querySelector("[name='metragem[]']").value,
+                espessura: c.querySelector("[name='expessura[]']").value,
+                densidade: c.querySelector("[name='densidade[]']").value,
+                preco: c.querySelector("[name='preco_massa[]']").value,
+                perda: c.querySelector("[name='perda[]']").value,
+                frete: c.querySelector("[name='frete[]']").value
+            });
+        });
+
+        // COLAS
+        document.querySelectorAll("#cola-lista .cola-bloco").forEach(c => {
+            const tipo = c.querySelector("input[name^='tipo_cola_']:checked")?.value;
+            dados.colas.push({
+                tipo,
+                metragem: c.querySelector("[name='metragem_cola[]']").value,
+                litro_m: c.querySelector("[name='litro_m[]']").value,
+                litro_tonel: c.querySelector("[name='litro_tonel[]']").value,
+                preco_tonel: c.querySelector("[name='preco_tonel[]']").value,
+                perda: c.querySelector("[name='perda[]']").value,
+                frete_tonel: c.querySelector("[name='frete_tonel[]']").value
+            });
+        });
+
+        // Envia pro Flask
+        const resp = await fetch("/salvar_orcamento", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        const res = await resp.json();
+
+        if (res.status === "sucesso") {
+            // Sucesso visual 🎉
+            btn.style.backgroundColor = "#28a745";
+            btn.innerHTML = "✅ Emitido com sucesso! (Ver orçamento)";
+            btn.disabled = false;
+
+            // Redireciona ao clicar
+            btn.onclick = () => {
+                window.location.href = `/orcamento/${res.orcamento_id}`;
+            };
+        } else {
+            throw new Error("Erro ao emitir orçamento");
+        }
+
+    } catch (e) {
+        console.error(e);
+        btn.style.backgroundColor = "#dc3545";
+        btn.innerHTML = "❌ Erro ao emitir. Tentar novamente";
+        btn.disabled = false;
+    }
+});
 </script>
 
 {% endblock %}
