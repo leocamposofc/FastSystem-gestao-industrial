@@ -225,6 +225,7 @@
   100% { transform: rotate(360deg); }
 }
 </style>
+<!-- Script do seletor de cliente -->
 <script>
 // Função para mostrar o cotador após escolher o cliente
 function selecionarCliente() {
@@ -630,40 +631,81 @@ function selecionarCliente() {
 
 </div>
 </div>
+<!-- Script geral -->
 <script>
 // custos extras
-const itens = ['func','alimentacao','estadia','caminhao','pa','rolo','pav','comp','sinal','transporte','outros'];
+const itensExtras = [
+  { id: 'func', nome: 'Funcionários' },
+  { id: 'alimentacao', nome: 'Alimentação' },
+  { id: 'estadia', nome: 'Estadia' },
+  { id: 'caminhao', nome: 'Caminhão Basculante' },
+  { id: 'pa', nome: 'Pá Carregadeira' },
+  { id: 'rolo', nome: 'Rolo Compactador' },
+  { id: 'pav', nome: 'Pavimentadora' },
+  { id: 'comp', nome: 'Compactador Manual' },
+  { id: 'sinal', nome: 'Sinalização' },
+  { id: 'transporte', nome: 'Transporte' },
+  { id: 'outros', nome: 'Outros' }
+];
 
 function calcular(id) {
-    const quantidade = parseInt(document.getElementById(id).value) || 0;
-    const valorUnitario = parseFloat(document.getElementById(id + '_valor_unitario').value) || 0;
-    document.getElementById(id + '_total').innerText = (quantidade * valorUnitario).toFixed(2);
-    atualizarTotalGeral();
+  const quantidade = parseInt(document.getElementById(id).value) || 0;
+  const valorUnitario = parseFloat(document.getElementById(id + '_valor_unitario').value) || 0;
+  document.getElementById(id + '_total').innerText = (quantidade * valorUnitario).toFixed(2);
+  atualizarTotalGeral();
 }
 
 function increment(id) {
-    const input = document.getElementById(id);
-    input.value = parseInt(input.value || 0) + 1;
-    calcular(id);
+  const input = document.getElementById(id);
+  input.value = parseInt(input.value || 0) + 1;
+  calcular(id);
 }
 
 function decrement(id) {
-    const input = document.getElementById(id);
-    input.value = Math.max(0, parseInt(input.value || 0) - 1);
-    calcular(id);
+  const input = document.getElementById(id);
+  input.value = Math.max(0, parseInt(input.value || 0) - 1);
+  calcular(id);
 }
 
 function atualizarTotalGeral() {
-    let totalGeral = 0;
-    itens.forEach(id => {
-        totalGeral += parseFloat(document.getElementById(id + '_total').innerText) || 0;
-    });
-    const multiplicador = parseInt(document.getElementById('multiplicador').value) || 1;
-    document.getElementById('total_geral').innerText = (totalGeral * multiplicador).toFixed(2);
+  let totalGeral = 0;
+  itensExtras.forEach(item => {
+    totalGeral += parseFloat(document.getElementById(item.id + '_total').innerText) || 0;
+  });
+  const multiplicador = parseInt(document.getElementById('multiplicador').value) || 1;
+  document.getElementById('total_geral').innerText = (totalGeral * multiplicador).toFixed(2);
+}
+
+/* 
+  Função que coleta os dados de todos os custos extras
+  e devolve um array de objetos bem formatado para salvar
+*/
+function coletarCustosExtras() {
+  const extras = [];
+  const multiplicador = parseInt(document.getElementById('multiplicador').value) || 1;
+
+  itensExtras.forEach(item => {
+    const qtd = parseFloat(document.getElementById(item.id).value) || 0;
+    const valorUnit = parseFloat(document.getElementById(item.id + '_valor_unitario').value) || 0;
+    const total = parseFloat(document.getElementById(item.id + '_total').innerText) || 0;
+    if (qtd > 0 || total > 0) {
+      extras.push({
+        tipo: item.nome,
+        quantidade: qtd * multiplicador,
+        valor_unitario: valorUnit,
+        total: total * multiplicador
+      });
+    }
+  });
+
+  return extras;
 }
 
 // Inicializa todos os totais
-itens.forEach(id => calcular(id));
+document.addEventListener("DOMContentLoaded", () => {
+  itensExtras.forEach(item => calcular(item.id));
+});
+
 
 // ======= TERRAPLANAGEM =======
 function mostrarTerraplanagem() {
@@ -1019,7 +1061,7 @@ document.getElementById("btnEmitir").addEventListener("click", async function() 
             massas: [],
             colas: [],
             terra: [],
-            extras: [],
+            extras: coletarCustosExtras(),
             resumo: {
                 geral: parseFloat(document.getElementById("resumo_geral").textContent) || 0
             }

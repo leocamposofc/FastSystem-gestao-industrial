@@ -1,7 +1,9 @@
 from datetime import datetime
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
 from Configuracoes import configuracoes
 import io
+from pathlib import Path
+import json
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import sqlite3
@@ -70,6 +72,135 @@ def index():
 
     )
 
+@app.route("/salvar_orcamento", methods=["POST"])
+def salvar_orcamento():
+    dados = request.get_json()
+    conn = sqlite3.connect("orcamentos.db")
+    cur = conn.cursor()
+
+    # Cria orçamento principal
+    cur.execute("""
+        INSERT INTO orcamentos (cliente_id, cliente_nome, cliente_empresa, total_geral)
+        VALUES (?, ?, ?, ?)
+    """, (
+        dados["cliente"]["id"],
+        dados["cliente"]["nome"],
+        dados["cliente"]["empresa"],
+        dados["resumo"]["geral"]
+    ))
+    orcamento_id = cur.lastrowid
+
+    # Salva massas
+    for m in dados["massas"]:
+        cur.execute("""
+            INSERT INTO camadas_massa
+            (orcamento_id, tipo, metragem, espessura, densidade, preco, perda, frete)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            orcamento_id,
+            m.get("tipo"),
+            float(m.get("metragem", 0)),
+            float(m.get("espessura", 0)),
+            float(m.get("densidade", 0)),
+            float(m.get("preco", 0)),
+            float(m.get("perda", 0)),
+            float(m.get("frete", 0))
+        ))
+
+    # Salva colas
+    for c in dados["colas"]:
+        cur.execute("""
+            INSERT INTO camadas_cola (orcamento_id, tipo, metragem, litro_m, litro_tonel, preco_tonel, perda, frete_tonel)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            orcamento_id,
+            m.get("tipo"),
+            float(m.get("metragem", 0)),
+            float(m.get("litro_m", 0)),
+            float(m.get("litro_tonel", 0)),
+            float(m.get("preco_tonel", 0)),
+            float(m.get("perda", 0)),
+            float(m.get("frete_tonel", 0))
+        ))
+
+    # Terraplanagem
+    for t in dados["terra"]:
+        cur.execute("""
+            INSERT INTO terraplanagem (orcamento_id, tipo_operacao, area, espessura, densidade, preco, perda, frete)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (orcamento_id, *t.values()))
+
+    # Custos extras
+    for e in dados["extras"]:
+        cur.execute("""
+            INSERT INTO custos_extras
+            (orcamento_id, tipo, quantidade, valor_unitario, total)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            orcamento_id,
+            e.get("tipo"),
+            float(e.get("quantidade", 0)),
+            float(e.get("valor_unitario", 0)),
+            float(e.get("total", 0))
+        ))
+
+
+    conn.commit()
+    conn.close()
+
+    # Cria pasta e salva JSON do orçamento
+    pasta = Path("orcamentos") / f"orcamento_{orcamento_id}"
+    pasta.mkdir(parents=True, exist_ok=True)
+    with open(pasta / "dados.json", "w", encoding="utf-8") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=2)
+
+    return jsonify({"status": "sucesso", "orcamento_id": orcamento_id})
+
+@app.route("/orcamentos")
+def listar_orcamentos():
+    conn = sqlite3.connect("orcamentos.db")
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, cliente_nome, cliente_empresa, data_criacao, status, total_geral
+        FROM orcamentos
+        ORDER BY id DESC
+    """)
+    orcamentos = cur.fetchall()
+    conn.close()
+    return render_template("orcamentos_lista.html", orcamentos=orcamentos)
+
+
+@app.route("/orcamento/<int:orcamento_id>")
+def ver_orcamento(orcamento_id):
+    conn = sqlite3.connect("orcamentos.db")
+    cur = conn.cursor()
+
+    # Info principal
+    cur.execute("SELECT * FROM orcamentos WHERE id=?", (orcamento_id,))
+    orc = cur.fetchone()
+
+    if not orc:
+        return f"<h3>Orçamento #{orcamento_id} não encontrado.</h3>"
+
+    # Tabelas relacionadas
+    cur.execute("SELECT * FROM camadas_massa WHERE orcamento_id=?", (orcamento_id,))
+    massas = cur.fetchall()
+
+    cur.execute("SELECT * FROM camadas_cola WHERE orcamento_id=?", (orcamento_id,))
+    colas = cur.fetchall()
+
+    cur.execute("SELECT * FROM terraplanagem WHERE orcamento_id=?", (orcamento_id,))
+    terra = cur.fetchall()
+
+    cur.execute("SELECT * FROM custos_extras WHERE orcamento_id=?", (orcamento_id,))
+    extras = cur.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "ver_orcamento.html",
+        orc=orc, massas=massas, colas=colas, terra=terra, extras=extras
+    )
 
 @app.route("/emitir_orcamento", methods=["POST"])
 def emitir_orcamento():

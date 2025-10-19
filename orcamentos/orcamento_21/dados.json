@@ -1,0 +1,34 @@
+{
+  "cliente": {
+    "id": "1",
+    "nome": "leonardo",
+    "empresa": "None"
+  },
+  "massas": [
+    {
+      "tipo": "cbuq",
+      "metragem": "200",
+      "espessura": "4",
+      "densidade": "2",
+      "preco": "660",
+      "perda": "10.0",
+      "frete": "2000"
+    }
+  ],
+  "colas": [
+    {
+      "tipo": "CM-30",
+      "metragem": "100000",
+      "litro_m": "1",
+      "litro_tonel": "200",
+      "preco_tonel": "1300",
+      "perda": "10.0",
+      "frete_tonel": "2000"
+    }
+  ],
+  "terra": [],
+  "extras": [],
+  "resumo": {
+    "geral": 1830966
+  }
+}

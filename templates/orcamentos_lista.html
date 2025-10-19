@@ -1,120 +1,108 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Lista de Orçamentos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .status-aberto {
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .status-fechado {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-ver {
-            background-color: #17a2b8;
-        }
-
-        .btn-editar {
-            background-color: #ffc107;
-        }
-
-        .btn-excluir {
-            background-color: #dc3545;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Orçamentos Emitidos</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f7fa;
+      padding: 30px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background: #007bff;
+      color: white;
+      font-weight: 600;
+    }
+    tr:hover {
+      background: #f1f1f1;
+    }
+    .status {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: white;
+      display: inline-block;
+    }
+    .status.aprovacao { background: #ffc107; color: #333; }
+    .status.aprovado { background: #28a745; }
+    .status.cancelado { background: #dc3545; }
+    a.btn {
+      text-decoration: none;
+      background: #007bff;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+    a.btn:hover {
+      background: #0056b3;
+    }
+    .actions {
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <h1>Orçamentos</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Empresa</th>
-                <th>Data de Criação</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for orc in orcamentos %}
-            <tr>
-                <td>{{ orc[0] }}</td>
-                <td>{{ orc[1] }}</td>
-                <td>{{ orc[2] }}</td>
-                <td>{{ orc[3] }}</td>
-                <td>
-                    {% if orc[4] == 'aberto' %}
-                        <span class="status-aberto">Aberto</span>
-                    {% else %}
-                        <span class="status-fechado">Fechado</span>
-                    {% endif %}
-                </td>
-                <td>R$ {{ "%.2f"|format(orc[5]) }}</td>
-                <td>
-                    <h1>em desenvolvimento</h1>
-                    <!-- <a href="{{ url_for('ver_orcamento', orcamento_id=orc[0]) }}" class="btn btn-ver">Ver</a>
-                    <a href="{{ url_for('editar_orcamento', orcamento_id=orc[0]) }}" class="btn btn-editar">Editar</a>
-                    <a href="{{ url_for('excluir_orcamento', orcamento_id=orc[0]) }}" class="btn btn-excluir" onclick="return confirm('Tem certeza que deseja excluir este orçamento?');">Excluir</a> -->
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="7" style="text-align: center;">Nenhum orçamento encontrado.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+<h2>📑 Orçamentos Emitidos</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Cliente</th>
+      <th>Empresa</th>
+      <th>Data</th>
+      <th>Status</th>
+      <th>Total</th>
+      <th class="actions">Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for id, nome, empresa, data, status, total in orcamentos %}
+    <tr>
+      <td>#{{ id }}</td>
+      <td>{{ nome }}</td>
+      <td>{{ empresa }}</td>
+      <td>{{ data }}</td>
+      <td>
+        <span class="status {% if 'Aguard' in status %}aprovacao{% elif 'Aprov' in status %}aprovado{% elif 'Cancel' in status %}cancelado{% endif %}">
+          {{ status }}
+        </span>
+      </td>
+      <td>R$ {{ "%.2f"|format(total) }}</td>
+      <td class="actions">
+        <a class="btn" href="/orcamento/{{ id }}">🔍 Ver</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div style="text-align:center;margin-top:25px;">
+  <a href="/cotador" class="btn">➕ Novo orçamento</a>
+</div>
+
 </body>
 </html>
