@@ -311,64 +311,64 @@ def clientes():
             else:
                 mensagem = "Senha incorreta para deletar cliente."
         # Cadastro de cliente
-        else:
-            id = request.form.get("id", "").strip()
-            nome = request.form.get("nome", "").strip()
-            sobrenome = request.form.get("sobrenome", "").strip()
-            empresa = request.form.get("empresa", "").strip()
-            cnpj = request.form.get("cnpj", "").strip()
-            celular1 = request.form.get("celular1", "").strip()
-            celular2 = request.form.get("celular2", "").strip()
-            email = request.form.get("email", "").strip()
-            tipo = request.form.get("tipo", "").strip()
-            endereco = request.form.get("endereco", "").strip()
-            cidade = request.form.get("cidade", "").strip()
-            estado = request.form.get("estado", "").strip()
-            cep = request.form.get("cep", "").strip()
-            observacoes = request.form.get("observacoes", "").strip()
+        # else:
+        #     id = request.form.get("id", "").strip()
+        #     nome = request.form.get("nome", "").strip()
+        #     sobrenome = request.form.get("sobrenome", "").strip()
+        #     empresa = request.form.get("empresa", "").strip()
+        #     cnpj = request.form.get("cnpj", "").strip()
+        #     celular1 = request.form.get("celular1", "").strip()
+        #     celular2 = request.form.get("celular2", "").strip()
+        #     email = request.form.get("email", "").strip()
+        #     tipo = request.form.get("tipo", "").strip()
+        #     endereco = request.form.get("endereco", "").strip()
+        #     cidade = request.form.get("cidade", "").strip()
+        #     estado = request.form.get("estado", "").strip()
+        #     cep = request.form.get("cep", "").strip()
+        #     observacoes = request.form.get("observacoes", "").strip()
 
-            if nome and celular1 and email:
-                try:
-                    banco = sqlite3.connect('clientes.db')
-                    cursor = banco.cursor()
-                    cursor.execute("""
-                        CREATE TABLE IF NOT EXISTS clientes (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            nome TEXT NOT NULL,
-                            sobrenome TEXT,
-                            empresa TEXT,
-                            cnpj TEXT,
-                            celular1 TEXT,
-                            celular2 TEXT,
-                            email TEXT,
-                            tipo TEXT,
-                            endereco TEXT,
-                            cidade TEXT,
-                            estado TEXT,
-                            cep TEXT,
-                            observacoes TEXT
-                        )
-                    """)
-                    cursor.execute("""
-                        INSERT INTO clientes (
-                            nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
-                            endereco, cidade, estado, cep, observacoes
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (
-                        nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
-                        endereco, cidade, estado, cep, observacoes
-                    ))
-                    banco.commit()
-                    mensagem = "Cliente cadastrado com sucesso!"
-                except Exception as e:
-                    mensagem = f"Erro ao cadastrar cliente: {str(e)}"
-                finally:
-                    banco.close()
-            else:
-                mensagem = "Preencha os campos obrigatórios: Nome, Celular1 e Email."
+        #     if nome and celular1 and email:
+        #         try:
+        #             banco = sqlite3.connect('clientes.db')
+        #             cursor = banco.cursor()
+        #             cursor.execute("""
+        #                 CREATE TABLE IF NOT EXISTS clientes (
+        #                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+        #                     nome TEXT NOT NULL,
+        #                     sobrenome TEXT,
+        #                     empresa TEXT,
+        #                     cnpj TEXT,
+        #                     celular1 TEXT,
+        #                     celular2 TEXT,
+        #                     email TEXT,
+        #                     tipo TEXT,
+        #                     endereco TEXT,
+        #                     cidade TEXT,
+        #                     estado TEXT,
+        #                     cep TEXT,
+        #                     observacoes TEXT
+        #                 )
+        #             """)
+        #             cursor.execute("""
+        #                 INSERT INTO clientes (
+        #                     nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
+        #                     endereco, cidade, estado, cep, observacoes
+        #                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        #             """, (
+        #                 nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
+        #                 endereco, cidade, estado, cep, observacoes
+        #             ))
+        #             banco.commit()
+        #             mensagem = "Cliente cadastrado com sucesso!"
+        #         except Exception as e:
+        #             mensagem = f"Erro ao cadastrar cliente: {str(e)}"
+        #         finally:
+        #             banco.close()
+        #     else:
+        #         mensagem = "Preencha os campos obrigatórios: Nome, Celular1 e Email."
 
-        # Redireciona para GET para evitar reenvio no F5
-        return redirect(url_for("clientes", mensagem=mensagem))
+        # # Redireciona para GET para evitar reenvio no F5
+        # return redirect(url_for("clientes", mensagem=mensagem))
 
     # GET: busca clientes e pega mensagem da query string
     mensagem = request.args.get("mensagem", "")
@@ -407,6 +407,79 @@ def clientes():
 
     return render_template("clientes.html", clientes=clientes_lista, sucesso=mensagem)
 
+@app.route("/cliente_cadastro", methods=["GET", "POST"])
+def cliente_cadastro():
+    mensagem = ""
+
+    if request.method == "POST":
+        print("Recebido POST para cadastro de cliente")
+        print(request.form)
+        nome = request.form.get("nome", "").strip()
+        sobrenome = request.form.get("sobrenome", "").strip()
+        empresa = request.form.get("empresa", "").strip()
+        cnpj = request.form.get("cnpj", "").strip()
+        celular1 = request.form.get("celular1", "").strip()
+        celular2 = request.form.get("celular2", "").strip()
+        email = request.form.get("email", "").strip()
+        tipo = request.form.get("tipo", "").strip()
+        endereco = request.form.get("endereco", "").strip()
+        numero = request.form.get("numero", "").strip()
+        complemento = request.form.get("complemento", "").strip()
+        cidade = request.form.get("cidade", "").strip()
+        estado = request.form.get("estado", "").strip()
+        bairro = request.form.get("bairro", "").strip()
+        cep = request.form.get("cep", "").strip()
+        observacoes = request.form.get("observacoes", "").strip()
+        cep_valido = request.form.get("cep_valido", "false")
+
+        if nome and celular1 and email:
+            if cep_valido == "true":
+                try:
+                    banco = sqlite3.connect('clientes.db')
+                    cursor = banco.cursor()
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS clientes (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            nome TEXT NOT NULL,
+                            sobrenome TEXT,
+                            empresa TEXT,
+                            cnpj TEXT,
+                            celular1 TEXT,
+                            celular2 TEXT,
+                            email TEXT,
+                            tipo TEXT,
+                            endereco TEXT,
+                            numero TEXT,
+                            complemento TEXT,
+                            cidade TEXT,
+                            estado TEXT,
+                            bairro TEXT,
+                            cep TEXT,
+                            observacoes TEXT
+                        )
+                    """)
+                    cursor.execute("""
+                        INSERT INTO clientes (
+                            nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
+                            endereco, numero, complemento, cidade, estado, bairro, cep, observacoes
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
+                        endereco, numero, complemento, cidade, estado, bairro, cep, observacoes
+                    ))
+                    banco.commit()
+                    mensagem = "Cliente cadastrado com sucesso!"
+                except Exception as e:
+                    mensagem = f"Erro ao cadastrar cliente: {str(e)}"
+                finally:
+                    banco.close()
+            else:
+                mensagem = "Erro: o CEP informado é inválido."
+                return render_template("cadastro_cliente.html", mensagem=mensagem)
+        else:
+            mensagem = "Preencha os campos obrigatórios: Nome, Celular1 e Email."
+
+    return render_template("cliente_cadastro.html", mensagem=mensagem)
 
 @app.route("/exemplo", methods=["GET", "POST"])
 def exemplo():

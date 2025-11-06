@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block head %}
+    <title>Cadastro de Clientes - Camp's Serviços</title>
+    <style>
+        .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px 20px;
+        }
+
+        .form-group {
+        display: flex;
+        flex-direction: column;
+        }
+
+        .form-group label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 4px;
+        }
+
+        input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        transition: all 0.2s ease;
+        background: #fafafa;
+        }
+
+        input:focus, select:focus, textarea:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+        outline: none;
+        background: #fff;
+        }
+
+        .endereco-section {
+        margin-top: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background: #f9fbff;
+        box-shadow: inset 0 0 6px rgba(0, 123, 255, 0.05);
+        }
+
+        .endereco-section h3 {
+        margin-bottom: 15px;
+        color: #0056b3;
+        border-bottom: 2px solid #007bff;
+        display: inline-block;
+        padding-bottom: 4px;
+        }
+
+        .form-actions {
+        grid-column: span 2;
+        text-align: center;
+        margin-top: 25px;
+        }
+
+        button {
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        }
+
+        button:hover {
+        transform: scale(1.03);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 700px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        }
+        #popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        #popup {
+            background-color: white;
+            color: #333;
+            padding: 25px 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            font-size: 18px;
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.4;
+            transition: opacity 0.3s ease;
+        }
+        .menu-btn { display: block; width: 100%; margin: 12px 0; padding: 12px; font-size: 16px; border: none; border-radius: 5px; background: #007bff; color: #fff; cursor: pointer; text-decoration: none; text-align: center; }
+        .menu-btn:hover { background: #0056b3; }
+    </style>
+{% endblock %}
+
+{% block content %} 
+    <div class="container">
+        <h2>Cadastro de Clientes</h2>
+        <form method="post" id="form-cadastro">
+            <div class="form-grid">
+            <div class="form-group">
+                <label>Nome *</label>
+                <input type="text" name="nome" placeholder="Digite o nome" required>
+            </div>
+
+            <div class="form-group">
+                <label>Sobrenome</label>
+                <input type="text" name="sobrenome" placeholder="Digite o sobrenome">
+            </div>
+
+            <div class="form-group">
+                <label>Razão Social *</label>
+                <input type="text" name="empresa" placeholder="Digite a razão social" required>
+            </div>
+
+            <div class="form-group">
+                <label>CNPJ</label>
+                <input type="text" name="cnpj" placeholder="00.000.000/0000-00">
+            </div>
+
+            <div class="form-group">
+                <label>Celular 1 *</label>
+                <input type="text" name="celular1" placeholder="(00) 00000-0000" required>
+            </div>
+
+            <div class="form-group">
+                <label>Celular 2</label>
+                <input type="text" name="celular2" placeholder="(00) 00000-0000">
+            </div>
+
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" name="email" placeholder="exemplo@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo *</label>
+                <select name="tipo" required>
+                <option value="">Selecione...</option>
+                <option value="cliente">Cliente</option>
+                <option value="fornecedor">Fornecedor</option>
+                </select>
+            </div>
+            </div>
+
+            <!-- SEÇÃO ENDEREÇO -->
+            <div class="endereco-section">
+            <h3>Endereço</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                <label>CEP *</label>
+                <input type="text" name="cep" id="cep" placeholder="00000-000" required>
+                </div>
+
+                <div class="form-group">
+                <label>Cidade</label>
+                <input type="text" name="cidade" id="cidade" disabled>
+                </div>
+
+                <div class="form-group">
+                <label>Estado</label>
+                <input type="text" name="estado" id="estado" disabled>
+                </div>
+
+                <div class="form-group">
+                <label>Bairro</label>
+                <input type="text" name="bairro" id="bairro" disabled>
+                </div>
+
+                <div class="form-group">
+                <label>Endereço</label>
+                <input type="text" name="endereco" id="logradouro" disabled>
+                </div>
+
+                <div class="form-group">
+                <label>Número *</label>
+                <input type="text" name="numero" placeholder="Número" required>
+                </div>
+
+                <div class="form-group">
+                <label>Complemento</label>
+                <input type="text" name="complemento" placeholder="Opcional">
+                </div>
+            </div>
+            </div>
+
+            <input type="hidden" name="cep_valido" id="cep_valido" value="false">
+
+            <div class="form-actions">
+            <button type="submit">Cadastrar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- SISTEMA DE MENSAGENS  -->
+    <div id="popup-overlay">
+        <div id="popup"></div>
+    </div>
+    <script>
+
+        function showPopup(message) {
+            var overlay = document.getElementById("popup-overlay");
+            var popup = document.getElementById("popup");
+            popup.innerText = message;
+            overlay.style.display = "flex"; // mostra o fundo + popup
+
+            // Define cor do texto conforme tipo da mensagem
+            if (message.toLowerCase().includes("sucesso")) {
+                popup.style.borderTop = "5px solid #4CAF50"; // verde
+            } else {
+                popup.style.borderTop = "5px solid #f44336"; // vermelho
+            }
+
+            // Tempo de exibição (5 segundos)
+            setTimeout(function() {
+                overlay.style.display = "none";
+
+                // Se for sucesso, redireciona
+                if (message.toLowerCase().includes("sucesso")) {
+                    window.location.href = "/clientes";
+                }
+            }, 5000);
+        }
+
+        // Exibe a mensagem se existir
+        {% if mensagem %}
+            showPopup("{{ mensagem }}");
+        {% endif %}
+        
+        
+        
+        // buscar cep
+        let cepValido = false; // variável de controle global
+
+        document.getElementById('cep').addEventListener('blur', function() {
+            let cep = this.value.replace(/\D/g, ''); // remove tudo que não for número
+
+            cepValido = false; // por padrão, considera inválido
+            document.getElementById('cep_valido').value = "false";
+
+            if (cep.length !== 8) {
+                alert('CEP inválido!');
+                return;
+            }
+
+            // URL da API ViaCEP
+            const url = `https://viacep.com.br/ws/${cep}/json/`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        alert('CEP não encontrado!');
+                        cepValido = false;
+                        document.getElementById('cep_valido').value = "false";
+                        return;
+                    }
+
+                    // Se chegou até aqui, é válido
+                    cepValido = true;
+                    document.getElementById('cep_valido').value = "true";
+
+                    // Preenche os campos
+                    document.getElementById('logradouro').value = data.logradouro || '';
+                    document.getElementById('cidade').value = data.localidade || '';
+                    document.getElementById('estado').value = data.uf || '';
+                    document.getElementById('bairro').value = data.bairro || '';
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar CEP:', error);
+                    alert('Não foi possível buscar o endereço.');
+                    cepValido = false;
+                    document.getElementById('cep_valido').value = "false";
+                });
+        });
+
+        // Impede envio se o CEP for inválido
+        document.querySelector('form').addEventListener('submit', function(event) {
+            if (!cepValido) {
+                event.preventDefault(); // bloqueia o envio
+                alert('Verifique o CEP antes de enviar o formulário.');
+            }
+        });
+
+    </script>
+{% endblock %}

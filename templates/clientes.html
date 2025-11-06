@@ -2,7 +2,13 @@
 {% block head %}
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; }
-        .container { max-width: 900px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #ccc; }
+        .container {
+            max-width: 1900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(42, 57, 78, 0.08);
         h2 { text-align: center; margin-bottom: 20px; }
         form { margin-bottom: 30px; }
         input, select, textarea { width: 100%; padding: 8px; margin: 6px 0; border-radius: 4px; border: 1px solid #ccc; }
@@ -23,34 +29,16 @@
             border-radius: 5px;
             z-index: 999;
         }
+        .btn-cadastro { display: block; width: 10% ; margin: 12px 0; padding: 12px; font-size: 16px; border: none; border-radius: 5px; background: #007bff; color: #fff; cursor: pointer; text-decoration: none; text-align: center; }
+        .btn-cadastro:hover { background: #0056b3; }
     </style>
     {% endblock %}
 {% block content %}
     <div id="popup"></div>
-        <h2>Cadastro de Clientes</h2>
-        <form method="post">
-            Nome (obrigatório): <input type="text" name="nome" placeholder="obrigatório" required><br>
-            Sobrenome: <input type="text" name="sobrenome"><br>
-            Razão social (obrigatório): <input type="text" name="empresa" placeholder="obrigatório" required><br>
-            CNPJ: <input type="text" name="cnpj"><br>
-            Celular 1 (obrigatório): <input type="text" name="celular1" placeholder="obrigatório" required><br>
-            Celular 2: <input type="text" name="celular2"><br>
-            Email (obrigatório): <input type="email" name="email" placeholder="obrigatório" required><br>
-            Tipo: 
-            <select name="tipo" placeholder="obrigatório" required>
-                <option value="cliente">Cliente</option>
-                <option value="fornecedor">Fornecedor</option>
-            </select><br>
-            CEP (obrigatório): <input type="text" name="cep" id="cep" required><br>
-            Cidade: <input type="text" name="cidade" id="cidade" disabled><br>
-            Estado: <input type="text" name="estado" id="estado" disabled><br>
-            Bairro: <input type="text" name="bairro" id="bairro" disabled><br>
-            Endereço: <input type="text" name="endereco" id="logradouro" disabled><br>
-            Numero (obrigatório): <input type="text" name="numero" required><br>
-            Complemento: <input type="text" name="complemento"><br
-            <button type="submit">Cadastrar</button>
-        </form>
+        
+        <a href="/cliente_cadastro" class="btn-cadastro">Novo cadastro (+)</a>
 
+        <div>
         <h3>Lista de Clientes</h3>
         <table>
             <tr>
@@ -97,6 +85,7 @@
             {% endfor %}
         </table>
         <p style="font-size:12px;">* Campos obrigatórios</p>
+        </div>
 
     <script>
         function showPopup(message) {
@@ -112,39 +101,5 @@
         showPopup("{{ sucesso }}");
         {% endif %}
         
-
-        // buscar cep
-        document.getElementById('cep').addEventListener('blur', function() {
-        let cep = this.value.replace(/\D/g, ''); // remove tudo que não for número
-
-        if (cep.length !== 8) {
-            alert('CEP inválido!');
-            return;
-        }
-
-        // URL da API ViaCEP
-        const url = `https://viacep.com.br/ws/${cep}/json/`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-            if (data.erro) {
-                alert('CEP não encontrado!');
-                return;
-            }
-
-            // Preenche os campos
-            document.getElementById('logradouro').value = data.logradouro || '';
-            document.getElementById('cidade').value = data.localidade || '';
-            document.getElementById('estado').value = data.estado || '';
-            document.getElementById('bairro').value = data.bairro || '';
-            })
-            .catch(error => {
-            console.error('Erro ao buscar CEP:', error);
-            alert('Não foi possível buscar o endereço.');
-            });
-        });
-
-
     </script>
 {% endblock %}
