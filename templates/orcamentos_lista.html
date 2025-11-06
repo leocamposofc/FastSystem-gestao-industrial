@@ -1,7 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
+{% block head %}
+{% block head %}
   <title>Orçamentos Emitidos</title>
   <style>
     body {
@@ -62,8 +60,8 @@
       text-align: center;
     }
   </style>
-</head>
-<body>
+{% endblock %}
+{% block content %}
 
 <h2>📑 Orçamentos Emitidos</h2>
 
@@ -104,5 +102,4 @@
   <a href="/cotador" class="btn">➕ Novo orçamento</a>
 </div>
 
-</body>
-</html>
+{% endblock %}
