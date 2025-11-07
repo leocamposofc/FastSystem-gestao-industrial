@@ -15,10 +15,12 @@
 
         body {
             font-family: 'Inter', Arial, sans-serif;
-            background: #1e1e1e url('{{ url_for("static", filename="industrial-texture.png") }}') repeat;
+            background: #474646 url('{{ url_for("static", filename="industrial-texture.png") }}') repeat;
             color: #eee;
         }
-
+        h2, h3 , h1 , h4, h5, h6 , p, label , span , hr, a{
+            color: #333;
+        }
         /* HEADER MODERNO */
         header {
             background-color: #121212cc; /* semi-transparente dark */
@@ -61,7 +63,7 @@
             max-width: 1200px;
             margin: 60px auto;
             padding: 30px;
-            background: rgba(30, 30, 30, 0.85); /* semi-transparente */
+            background: rgba(224, 224, 221, 0.884); /* semi-transparente */
             border-radius: 12px;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
             color: #eee;
@@ -177,9 +179,9 @@
     <a href="{{ url_for('inicio') }}">Início</a>
 </header>
 
-<div class="container">
+<!-- <div class="container"> -->
     {% block content %}{% endblock %}
-</div>
+<!-- </div> -->
 
 <footer>
     © 2025 Camp's Serviços - Todos os direitos reservados.
