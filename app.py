@@ -93,10 +93,6 @@ def index():
 
     )
 
-from pathlib import Path
-import json
-import sqlite3
-from flask import request, jsonify
 
 def safe_float(value):
     try:
@@ -108,18 +104,22 @@ def safe_float(value):
 @app.route("/salvar_orcamento", methods=["POST"])
 def salvar_orcamento():
     dados = request.get_json()
+    local = dados.get("local_obra", {})
     conn = sqlite3.connect("orcamentos.db")
     cur = conn.cursor()
 
     # Cria orçamento principal
     cur.execute("""
-        INSERT INTO orcamentos (cliente_id, cliente_nome, cliente_empresa, total_geral)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO orcamentos (cliente_id, cliente_nome, cliente_empresa, total_geral, endereco, latitude, longitude)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
         dados["cliente"]["id"],
         dados["cliente"]["nome"],
         dados["cliente"]["empresa"],
-        safe_float(dados["resumo"]["geral"])
+        safe_float(dados["resumo"]["geral"]),
+        local.get("endereco"),
+        local.get("lat"),
+        local.get("lng")
     ))
     orcamento_id = cur.lastrowid
 
@@ -429,65 +429,6 @@ def clientes():
                     banco.close()
             else:
                 mensagem = "Senha incorreta para deletar cliente."
-        # Cadastro de cliente
-        # else:
-        #     id = request.form.get("id", "").strip()
-        #     nome = request.form.get("nome", "").strip()
-        #     sobrenome = request.form.get("sobrenome", "").strip()
-        #     empresa = request.form.get("empresa", "").strip()
-        #     cnpj = request.form.get("cnpj", "").strip()
-        #     celular1 = request.form.get("celular1", "").strip()
-        #     celular2 = request.form.get("celular2", "").strip()
-        #     email = request.form.get("email", "").strip()
-        #     tipo = request.form.get("tipo", "").strip()
-        #     endereco = request.form.get("endereco", "").strip()
-        #     cidade = request.form.get("cidade", "").strip()
-        #     estado = request.form.get("estado", "").strip()
-        #     cep = request.form.get("cep", "").strip()
-        #     observacoes = request.form.get("observacoes", "").strip()
-
-        #     if nome and celular1 and email:
-        #         try:
-        #             banco = sqlite3.connect('clientes.db')
-        #             cursor = banco.cursor()
-        #             cursor.execute("""
-        #                 CREATE TABLE IF NOT EXISTS clientes (
-        #                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-        #                     nome TEXT NOT NULL,
-        #                     sobrenome TEXT,
-        #                     empresa TEXT,
-        #                     cnpj TEXT,
-        #                     celular1 TEXT,
-        #                     celular2 TEXT,
-        #                     email TEXT,
-        #                     tipo TEXT,
-        #                     endereco TEXT,
-        #                     cidade TEXT,
-        #                     estado TEXT,
-        #                     cep TEXT,
-        #                     observacoes TEXT
-        #                 )
-        #             """)
-        #             cursor.execute("""
-        #                 INSERT INTO clientes (
-        #                     nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
-        #                     endereco, cidade, estado, cep, observacoes
-        #                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        #             """, (
-        #                 nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
-        #                 endereco, cidade, estado, cep, observacoes
-        #             ))
-        #             banco.commit()
-        #             mensagem = "Cliente cadastrado com sucesso!"
-        #         except Exception as e:
-        #             mensagem = f"Erro ao cadastrar cliente: {str(e)}"
-        #         finally:
-        #             banco.close()
-        #     else:
-        #         mensagem = "Preencha os campos obrigatórios: Nome, Celular1 e Email."
-
-        # # Redireciona para GET para evitar reenvio no F5
-        # return redirect(url_for("clientes", mensagem=mensagem))
 
     # GET: busca clientes e pega mensagem da query string
     mensagem = request.args.get("mensagem", "")

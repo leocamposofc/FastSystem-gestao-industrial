@@ -240,11 +240,11 @@ function selecionarCliente() {
 {% endblock %}
 
 {% block content %}
-<h2>Selecione o cliente:</h2>
+<h2 style="color: darkorange;">Selecione o cliente:</h2>
 
 <!-- Seleção de cliente -->
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0;">
-    <label for="clienteSelect" style="font-size: 14px;">Cliente:</label>
+    <label for="clienteSelect" style="font-size: 14px; color: darkorange;">Cliente:</label>
     <select name="cliente" id="clienteSelect" required onchange="selecionarCliente()"
             style="padding: 6px 8px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; height: 32px; min-width: 250px;">
         <option value="">Selecione um cliente</option>
@@ -272,6 +272,7 @@ function selecionarCliente() {
 <h2>Calculadora de Capeamento de Asfalto</h2>
 
 <!-- MASSA -->
+<div class="container">
 <h3 class="section-title">MASSA ASFÁLTICA</h3>
 <div id="massa-lista">
     <div class="massa-bloco">
@@ -331,9 +332,11 @@ function selecionarCliente() {
         <button type="button" id="add-camada" class="add-camada-btn">+ Adicionar camada de massa</button>
     </div>
     <hr>
+</div>
 
 
 <!-- IMPRIMAÇÃO / COLA -->
+<div class="container">
 <h3 class="section-title">IMPRIMAÇÃO (COLA)</h3>
 <div id="cola-lista">
     <div class="massa-bloco cola-bloco">
@@ -391,6 +394,7 @@ function selecionarCliente() {
     <div class="controls">
         <button type="button" id="add-camada-cola" class="add-camada-btn">+ Adicionar camada de imprimação</button>
     </div>
+</div>    
     <div class="summary">
         <strong>Total Geral (Massas + Colas): R$ <span id="custo-total-geral">0.00</span></strong>
     </div>
@@ -608,6 +612,14 @@ function selecionarCliente() {
 
 </div>
 
+<!-- SISTEMA DE GOOGLE MAPS -->
+<div class="container" style="margin-top: 30px;">
+    <h3>Local da Obra</h3>
+        <input id="local_obra" type="text" placeholder="Digite o endereço" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;" required>
+        <div id="mapa" style="width:100%;height:300px;margin-top:10px;border-radius:10px;"></div>
+</div>
+
+
 <hr>
 <!--  CALCULO DE RESUMO FINAL -->
 <div class="container">
@@ -630,6 +642,49 @@ function selecionarCliente() {
 
 </div>
 </div>
+<!-- SCRIPT GOOGLE MAPS -->
+ <script>
+let map, marker, geocoder;
+
+function initMap() {
+  geocoder = new google.maps.Geocoder();
+  map = new google.maps.Map(document.getElementById("mapa"), {
+    zoom: 15,
+    center: { lat: -23.55052, lng: -46.633308 }, // São Paulo
+  });
+
+  marker = new google.maps.Marker({
+    map: map,
+    draggable: true,
+  });
+
+  const input = document.getElementById("local_obra");
+  const autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.bindTo("bounds", map);
+
+  autocomplete.addListener("place_changed", function() {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+
+    map.setCenter(place.geometry.location);
+    marker.setPosition(place.geometry.location);
+  });
+}
+
+// Pega lat/lng atuais (pra enviar pro Flask)
+function getCoordenadasObra() {
+  const pos = marker.getPosition();
+  return {
+    endereco: document.getElementById("local_obra").value,
+    lat: pos.lat(),
+    lng: pos.lng()
+  };
+}
+</script>
+
+<!-- Carrega a API do Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=SUA_CHAVE_API&libraries=places&callback=initMap" async defer></script>
+
 <!-- Script geral -->
 <script>
 // custos extras
@@ -1061,6 +1116,7 @@ document.getElementById("btnEmitir").addEventListener("click", async function() 
             colas: [],
             terra: [],
             extras: coletarCustosExtras(),
+            local_obra: localObra,
             resumo: {
                 geral: parseFloat(document.getElementById("resumo_geral").textContent) || 0
             }

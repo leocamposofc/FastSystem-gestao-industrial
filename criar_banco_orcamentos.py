@@ -47,6 +47,17 @@ CREATE TABLE IF NOT EXISTS orcamentos (
 );
 """)
 
+# === Adiciona colunas de endereço e coordenadas se ainda não existirem ===
+cur.execute("PRAGMA table_info(orcamentos)")
+colunas = [col[1] for col in cur.fetchall()]
+
+if "endereco" not in colunas:
+    cur.execute("ALTER TABLE orcamentos ADD COLUMN endereco TEXT")
+if "latitude" not in colunas:
+    cur.execute("ALTER TABLE orcamentos ADD COLUMN latitude REAL")
+if "longitude" not in colunas:
+    cur.execute("ALTER TABLE orcamentos ADD COLUMN longitude REAL")
+
 # === DEMAIS TABELAS ===
 cur.execute("""
 CREATE TABLE IF NOT EXISTS camadas_massa (
@@ -108,4 +119,4 @@ CREATE TABLE IF NOT EXISTS custos_extras (
 conn.commit()
 conn.close()
 
-print("✅ Banco de dados 'orcamentos.db' recriado com sucesso!")
+print("✅ Banco de dados 'orcamentos.db' atualizado com sucesso!")
