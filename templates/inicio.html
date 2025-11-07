@@ -2,23 +2,145 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>{{ titulo_pagina }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo_pagina }} - Camp's Serviços</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; }
-        .container { max-width: 400px; margin: 80px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #ccc; }
-        h2 { text-align: center; margin-bottom: 30px; }
-        .menu-btn { display: block; width: 100%; margin: 12px 0; padding: 12px; font-size: 16px; border: none; border-radius: 5px; background: #007bff; color: #fff; cursor: pointer; text-decoration: none; text-align: center; }
-        .menu-btn:hover { background: #0056b3; }
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===== BODY / BACKGROUND ===== */
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top left, #2b2b2b, #1a1a1a 70%);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* ===== TEXTURE EFFECT ===== */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(45deg, rgba(255, 204, 0, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 204, 0, 0.05) 50%, rgba(255, 204, 0, 0.05) 75%, transparent 75%, transparent);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            position: relative;
+            background: #222;
+            padding: 45px 35px;
+            border-radius: 18px;
+            width: 90%;
+            max-width: 440px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            border: 2px solid #ffcc00;
+            z-index: 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(255,204,0,0.2);
+        }
+
+        /* ===== TÍTULO ===== */
+        h1 {
+            font-size: 1.8rem;
+            color: #ffcc00;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #ccc;
+            margin-bottom: 35px;
+        }
+
+        h2::after {
+            content: '';
+            width: 70px;
+            height: 3px;
+            background: #ffcc00;
+            display: block;
+            margin: 15px auto 0;
+            border-radius: 3px;
+        }
+
+        /* ===== BOTÕES ===== */
+        .menu-btn {
+            display: block;
+            width: 100%;
+            margin: 12px 0;
+            padding: 14px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #ffcc00, #b38f00);
+            color: #222;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255,204,0,0.2);
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(135deg, #ffd633, #e6b800);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255,204,0,0.3);
+        }
+
+        .menu-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ===== RODAPÉ ===== */
+        footer {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #333;
+            padding-top: 12px;
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1rem; }
+            .menu-btn { font-size: 15px; padding: 12px; }
+            .container { padding: 35px 25px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>FastSystem</h2>
+        <h1>Camp's Serviços</h1>
+        <h2>FastSystem - Gestão Industrial</h2>
+
         <a href="/cotador" class="menu-btn">Cotador</a>
         <a href="/orcamentos" class="menu-btn">Orçamentos</a>
         <a href="/clientes" class="menu-btn">Clientes</a>
-        <a href="/" class="menu-btn">Configurações</a>
+        <a href="/configuracoes" class="menu-btn">Configurações</a>
+
+        <footer>© 2025 Camp's Serviços • Soluções em Pavimentação e Obras</footer>
     </div>
 </body>
 </html>
-    

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo_pagina }}</title>
+    <style>
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===== BODY / BACKGROUND ===== */
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #007bff, #00d4ff);
+            background-size: 400% 400%;
+            animation: gradientMove 10s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+        }
+
+        /* ===== TITULO ===== */
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #007bff;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            width: 60px;
+            height: 3px;
+            background: #007bff;
+            display: block;
+            margin: 10px auto 0;
+            border-radius: 3px;
+        }
+
+        /* ===== BOTÕES ===== */
+        .menu-btn {
+            display: block;
+            width: 100%;
+            margin: 12px 0;
+            padding: 14px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #007bff, #00d4ff);
+            color: #fff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(135deg, #0056b3, #0096d6);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,123,255,0.4);
+        }
+
+        /* ===== EFEITO DE CLICK ===== */
+        .menu-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* ===== RODAPÉ / COPYRIGHT ===== */
+        footer {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 480px) {
+            h2 { font-size: 1.7rem; }
+            .menu-btn { font-size: 15px; padding: 12px; }
+            .container { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>FastSystem</h2>
+        <a href="/cotador" class="menu-btn">Cotador</a>
+        <a href="/orcamentos" class="menu-btn">Orçamentos</a>
+        <a href="/clientes" class="menu-btn">Clientes</a>
+        <a href="/configuracoes" class="menu-btn">Configurações</a>
+
+        <footer>© 2025 FastSystem</footer>
+    </div>
+</body>
+</html>

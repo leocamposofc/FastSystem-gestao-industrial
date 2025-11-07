@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <favicon type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <meta charset="UTF-8">
     <title>{% block title %}Camp's Serviços{% endblock %}</title>
 
@@ -15,73 +15,155 @@
 
         body {
             font-family: 'Inter', Arial, sans-serif;
-            background: #f4f6f8;
-            color: #222;
+            background: #1e1e1e url('{{ url_for("static", filename="industrial-texture.png") }}') repeat;
+            color: #eee;
         }
 
         /* HEADER MODERNO */
         header {
-            background-color: #007bff;
+            background-color: #121212cc; /* semi-transparente dark */
             color: #fff;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 12px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             flex-wrap: wrap;
             gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
         }
 
         header img {
-            height: 40px;
+            height: 50px;
             width: auto;
             border-radius: 6px;
             object-fit: contain;
         }
 
         header a {
-            color: #fff;
+            color: #222;
             text-decoration: none;
             font-weight: 600;
-            padding: 8px 14px;
-            background-color: #0056b3;
+            padding: 10px 18px;
+            background-color: #f5c142; /* amarelo industrial */
             border-radius: 6px;
             transition: all 0.2s ease-in-out;
         }
 
         header a:hover {
-            background-color: #003f7f;
+            background-color: #e0b032;
         }
 
         /* CONTAINER CENTRAL */
         .container {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(42, 57, 78, 0.08);
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 30px;
+            background: rgba(30, 30, 30, 0.85); /* semi-transparente */
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+            color: #eee;
         }
 
         /* FOOTER */
         footer {
-            background: #eceff1;
-            color: #37474f;
+            background: #121212;
+            color: #bbb;
             text-align: center;
-            padding: 12px;
+            padding: 14px;
             margin-top: 30px;
             font-size: 14px;
         }
 
+        /* BOTÕES INDUSTRIAIS */
+        .btn-industrial {
+            display: inline-block;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #f5c142, #e0b032);
+            color: #222;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-industrial:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #e0b032, #cfa020);
+        }
+
+        /* TABELAS ESCURAS */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            border-radius: 8px;
+            overflow: hidden;
+            color: #eee;
+        }
+
+        thead {
+            background: #2c2c2c;
+            color: #f5c142;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background: rgba(245, 193, 66, 0.1);
+            transition: 0.2s;
+        }
+
+        th {
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.4px;
+        }
+
         /* RESPONSIVO */
-        @media (max-width: 720px) {
-            header {
-                justify-content: center;
-                text-align: center;
+        @media (max-width: 900px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
             }
-            header a {
-                width: 100%;
-                max-width: 200px;
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 15px;
+                border: 1px solid #333;
+                border-radius: 10px;
+                padding: 10px;
+                background: rgba(30, 30, 30, 0.85);
+            }
+
+            td {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px;
+                border: none;
+                border-bottom: 1px solid #444;
+            }
+
+            td:last-child {
+                border-bottom: none;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: #f5c142;
             }
         }
     </style>
@@ -91,10 +173,7 @@
 <body>
 
 <header>
-    <!-- Logo da empresa -->
     <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo da Empresa">
-
-    <!-- Botão voltar para início -->
     <a href="{{ url_for('inicio') }}">Início</a>
 </header>
 
