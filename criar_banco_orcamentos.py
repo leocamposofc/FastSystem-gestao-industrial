@@ -3,6 +3,36 @@ import sqlite3
 conn = sqlite3.connect("orcamentos.db")
 cur = conn.cursor()
 
+# === TABELA DE STATUS ===
+cur.execute("""
+CREATE TABLE IF NOT EXISTS status (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    descricao TEXT
+);
+""")
+
+# Popula os status apenas se a tabela estiver vazia
+cur.execute("SELECT COUNT(*) FROM status")
+if cur.fetchone()[0] == 0:
+    cur.executemany("""
+        INSERT INTO status (nome, descricao) VALUES (?, ?)
+    """, [
+        ('Em elaboração', 'Orçamento em fase de criação.'),
+        ('Aguardando aprovação', 'Enviado ao cliente, aguardando retorno.'),
+        ('Em revisão', 'Devolvido para ajustes.'),
+        ('Aprovado', 'Aprovado pelo cliente.'),
+        ('Em execução', 'Serviço em andamento.'),
+        ('Concluído', 'Serviço finalizado.'),
+        ('Reprovado', 'Recusado pelo cliente.'),
+        ('Cancelado', 'Cancelado antes da execução.'),
+        ('Expirado', 'Prazo de validade ultrapassado.'),
+        ('Aguardando pagamento', 'Aprovado, mas não pago.'),
+        ('Pago', 'Pagamento confirmado.')
+    ])
+    print("✅ Status padrão inseridos.")
+
+# === TABELA DE ORÇAMENTOS ===
 cur.execute("""
 CREATE TABLE IF NOT EXISTS orcamentos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -10,12 +40,14 @@ CREATE TABLE IF NOT EXISTS orcamentos (
     cliente_nome TEXT,
     cliente_empresa TEXT,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status TEXT DEFAULT 'Aguardando aprovação',
+    status_id INTEGER,
     total_geral REAL,
-    observacoes TEXT
+    observacoes TEXT,
+    FOREIGN KEY (status_id) REFERENCES status(id)
 );
 """)
 
+# === DEMAIS TABELAS ===
 cur.execute("""
 CREATE TABLE IF NOT EXISTS camadas_massa (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,4 +108,4 @@ CREATE TABLE IF NOT EXISTS custos_extras (
 conn.commit()
 conn.close()
 
-print("✅ Banco de dados 'orcamentos.db' criado com sucesso!")
+print("✅ Banco de dados 'orcamentos.db' recriado com sucesso!")

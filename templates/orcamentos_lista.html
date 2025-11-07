@@ -1,71 +1,85 @@
+{% extends "base.html" %}
 {% block head %}
-{% block head %}
-  <title>Orçamentos Emitidos</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f5f7fa;
-      padding: 30px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-      font-size: 14px;
-    }
-    th {
-      background: #007bff;
-      color: white;
-      font-weight: 600;
-    }
-    tr:hover {
-      background: #f1f1f1;
-    }
-    .status {
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-weight: 600;
-      color: white;
-      display: inline-block;
-    }
-    .status.aprovacao { background: #ffc107; color: #333; }
-    .status.aprovado { background: #28a745; }
-    .status.cancelado { background: #dc3545; }
-    a.btn {
-      text-decoration: none;
-      background: #007bff;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      transition: 0.2s;
-    }
-    a.btn:hover {
-      background: #0056b3;
-    }
-    .actions {
-      text-align: center;
-    }
-  </style>
-{% endblock %}
-{% block content %}
+<style>
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #eee;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+  th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+  }
+  td { color: #333; }
+  tr:hover { background: #f9f9f9; }
 
+  /* Botões */
+  a.btn, button.btn-small {
+    text-decoration: none;
+    background: #007bff;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  a.btn:hover { background: #0056b3; }
+
+  button.btn-small {
+    background: #28a745;
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  button.btn-small:hover {
+    background: #218838;
+  }
+
+  .status-select {
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+  }
+
+  .actions {
+    text-align: center;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .btn-visualizar {
+    background: #007bff;
+  }
+  .btn-visualizar:hover {
+    background: #0056b3;
+  }
+
+  .btn-salvar {
+    background: #28a745;
+  }
+  .btn-salvar:hover {
+    background: #218838;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
 <h2>📑 Orçamentos Emitidos</h2>
 
-<table>
+<table class="tabela-orcamentos">
   <thead>
     <tr>
       <th>ID</th>
@@ -74,24 +88,27 @@
       <th>Data</th>
       <th>Status</th>
       <th>Total</th>
-      <th class="actions">Ações</th>
+      <th>Ações</th>
     </tr>
   </thead>
   <tbody>
-    {% for id, nome, empresa, data, status, total in orcamentos %}
+    {% for id, nome, empresa, data, status_nome, status_id, total in orcamentos %}
     <tr>
-      <td>#{{ id }}</td>
+      <td>{{ id }}</td>
       <td>{{ nome }}</td>
       <td>{{ empresa }}</td>
       <td>{{ data }}</td>
       <td>
-        <span class="status {% if 'Aguard' in status %}aprovacao{% elif 'Aprov' in status %}aprovado{% elif 'Cancel' in status %}cancelado{% endif %}">
-          {{ status }}
-        </span>
+        <select name="status" class="status-select" data-orcamento="{{ id }}">
+          {% for s_id, s_nome in status_opcoes %}
+            <option value="{{ s_id }}" {% if s_id == status_id %}selected{% endif %}>{{ s_nome }}</option>
+          {% endfor %}
+        </select>
       </td>
-      <td>R$ {{ "%.2f"|format(total) }}</td>
+      <td>R$ {{ "%.2f"|format(total|float) }}</td>
       <td class="actions">
-        <a class="btn" href="/orcamento/{{ id }}">🔍 Ver</a>
+        <a href="/orcamento/{{ id }}" class="btn btn-visualizar">👁️ Visualizar</a>
+        <button class="btn btn-salvar" data-orcamento="{{ id }}">💾 Salvar</button>
       </td>
     </tr>
     {% endfor %}
@@ -102,4 +119,30 @@
   <a href="/cotador" class="btn">➕ Novo orçamento</a>
 </div>
 
+<script>
+  document.querySelectorAll(".btn-salvar").forEach(botao => {
+    botao.addEventListener("click", async () => {
+      const id = botao.dataset.orcamento;
+      const select = document.querySelector(`select[data-orcamento='${id}']`);
+      const status = select.value;
+
+      const resp = await fetch("/atualizar_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id, status_id: status })
+      });
+
+      if (resp.ok) {
+        botao.style.backgroundColor = "#28a745";
+        botao.textContent = "✅ Salvo!";
+        setTimeout(() => {
+          botao.textContent = "💾 Salvar";
+          botao.style.backgroundColor = "";
+        }, 1200);
+      } else {
+        alert("Erro ao salvar o status do orçamento.");
+      }
+    });
+  });
+</script>
 {% endblock %}

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
 from Configuracoes import configuracoes
 import io
@@ -22,6 +22,22 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row  # permite acessar colunas por nome
     return conn
 
+def safe_float(value):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return 0.0
+
+
+@app.context_processor
+def inject_config():
+    return dict(
+        empresa_nome=configuracoes.nome_empresa,
+        empresa_slogan=configuracoes.slogan_empresa,
+        empresa_site=configuracoes.site_empresa,
+        empresa_email=configuracoes.email_empresa,
+        sistema_nome=configuracoes.nome_sistema
+    )
 
 @app.route("/cotador", methods=["GET", "POST"])
 def index():
@@ -77,6 +93,18 @@ def index():
 
     )
 
+from pathlib import Path
+import json
+import sqlite3
+from flask import request, jsonify
+
+def safe_float(value):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return 0.0
+
+
 @app.route("/salvar_orcamento", methods=["POST"])
 def salvar_orcamento():
     dados = request.get_json()
@@ -91,7 +119,7 @@ def salvar_orcamento():
         dados["cliente"]["id"],
         dados["cliente"]["nome"],
         dados["cliente"]["empresa"],
-        dados["resumo"]["geral"]
+        safe_float(dados["resumo"]["geral"])
     ))
     orcamento_id = cur.lastrowid
 
@@ -104,28 +132,29 @@ def salvar_orcamento():
         """, (
             orcamento_id,
             m.get("tipo"),
-            float(m.get("metragem", 0)),
-            float(m.get("espessura", 0)),
-            float(m.get("densidade", 0)),
-            float(m.get("preco", 0)),
-            float(m.get("perda", 0)),
-            float(m.get("frete", 0))
+            safe_float(m.get("metragem")),
+            safe_float(m.get("espessura")),
+            safe_float(m.get("densidade")),
+            safe_float(m.get("preco")),
+            safe_float(m.get("perda")),
+            safe_float(m.get("frete"))
         ))
 
     # Salva colas
     for c in dados["colas"]:
         cur.execute("""
-            INSERT INTO camadas_cola (orcamento_id, tipo, metragem, litro_m, litro_tonel, preco_tonel, perda, frete_tonel)
+            INSERT INTO camadas_cola
+            (orcamento_id, tipo, metragem, litro_m, litro_tonel, preco_tonel, perda, frete_tonel)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             orcamento_id,
-            m.get("tipo"),
-            float(m.get("metragem", 0)),
-            float(m.get("litro_m", 0)),
-            float(m.get("litro_tonel", 0)),
-            float(m.get("preco_tonel", 0)),
-            float(m.get("perda", 0)),
-            float(m.get("frete_tonel", 0))
+            c.get("tipo"),
+            safe_float(c.get("metragem")),
+            safe_float(c.get("litro_m")),
+            safe_float(c.get("litro_tonel")),
+            safe_float(c.get("preco_tonel")),
+            safe_float(c.get("perda")),
+            safe_float(c.get("frete_tonel"))
         ))
 
     # Terraplanagem
@@ -133,7 +162,16 @@ def salvar_orcamento():
         cur.execute("""
             INSERT INTO terraplanagem (orcamento_id, tipo_operacao, area, espessura, densidade, preco, perda, frete)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (orcamento_id, *t.values()))
+        """, (
+            orcamento_id,
+            t.get("tipo_operacao"),
+            safe_float(t.get("area")),
+            safe_float(t.get("espessura")),
+            safe_float(t.get("densidade")),
+            safe_float(t.get("preco")),
+            safe_float(t.get("perda")),
+            safe_float(t.get("frete"))
+        ))
 
     # Custos extras
     for e in dados["extras"]:
@@ -144,11 +182,10 @@ def salvar_orcamento():
         """, (
             orcamento_id,
             e.get("tipo"),
-            float(e.get("quantidade", 0)),
-            float(e.get("valor_unitario", 0)),
-            float(e.get("total", 0))
+            safe_float(e.get("quantidade")),
+            safe_float(e.get("valor_unitario")),
+            safe_float(e.get("total"))
         ))
-
 
     conn.commit()
     conn.close()
@@ -165,14 +202,91 @@ def salvar_orcamento():
 def listar_orcamentos():
     conn = sqlite3.connect("orcamentos.db")
     cur = conn.cursor()
+
+    # 1️⃣ Pega o prazo de validade
+    prazo_validade = timedelta(days=configuracoes.validade_orcamento_dias)
+    hoje = datetime.now()
+
+    # 2️⃣ Busca orçamentos ainda válidos (não vencidos)
     cur.execute("""
-        SELECT id, cliente_nome, cliente_empresa, data_criacao, status, total_geral
+        SELECT id, data_criacao, status_id
         FROM orcamentos
-        ORDER BY id DESC
+        WHERE status_id != (
+            SELECT id FROM status WHERE nome = 'Vencido'
+        )
+    """)
+    orcs = cur.fetchall()
+
+    # 3️⃣ Verifica se algum venceu
+    for id_orc, data_criacao_str, status_id in orcs:
+        try:
+            data_criacao = datetime.fromisoformat(data_criacao_str)
+        except ValueError:
+            data_criacao = datetime.strptime(data_criacao_str, "%Y-%m-%d %H:%M:%S")
+
+        if hoje - data_criacao > prazo_validade:
+            cur.execute("""
+                UPDATE orcamentos
+                SET status_id = (SELECT id FROM status WHERE nome = 'Vencido')
+                WHERE id = ?
+            """, (id_orc,))
+
+    conn.commit()
+
+    # 4️⃣ Busca todos os status possíveis (para o seletor)
+    cur.execute("SELECT id, nome FROM status ORDER BY id")
+    status_opcoes = cur.fetchall()
+
+    # 5️⃣ Busca orçamentos já atualizados, sem join com clientes
+    cur.execute("""
+        SELECT o.id, 
+               o.cliente_nome, 
+               o.cliente_empresa, 
+               o.data_criacao, 
+               s.nome AS status_nome, 
+               o.status_id, 
+               o.total_geral
+        FROM orcamentos o
+        LEFT JOIN status s ON o.status_id = s.id
+        ORDER BY o.data_criacao DESC
     """)
     orcamentos = cur.fetchall()
+
     conn.close()
-    return render_template("orcamentos_lista.html", orcamentos=orcamentos)
+
+    # 6️⃣ Renderiza a tela
+    return render_template(
+        "orcamentos_lista.html",
+        orcamentos=orcamentos,
+        status_opcoes=status_opcoes
+    )
+
+@app.route("/atualizar_status", methods=["POST"])
+def atualizar_status():
+    data = request.get_json()
+    orcamento_id = data.get("id")
+    status_id = data.get("status_id")
+
+    if not orcamento_id or not status_id:
+        return jsonify({"erro": "Dados incompletos"}), 400
+
+    conn = sqlite3.connect("orcamentos.db")
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            UPDATE orcamentos
+            SET status_id = ?
+            WHERE id = ?
+        """, (status_id, orcamento_id))
+        conn.commit()
+    except Exception as e:
+        print("Erro ao atualizar status:", e)
+        return jsonify({"erro": "Erro interno"}), 500
+    finally:
+        conn.close()
+
+    return jsonify({"sucesso": True})
 
 
 @app.route("/orcamento/<int:orcamento_id>")

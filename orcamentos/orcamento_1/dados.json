@@ -1,56 +1,56 @@
 {
   "cliente": {
-    "id": "14",
-    "nome": "Leonardo",
-    "empresa": "Camp's serviços"
+    "id": "2",
+    "nome": "Origens açaiteria2",
+    "empresa": "origensacaiteria"
   },
   "massas": [
     {
       "tipo": "binder",
-      "metragem": "500",
-      "espessura": "4",
-      "densidade": "3",
-      "preco": "605",
+      "metragem": "1000",
+      "espessura": "3",
+      "densidade": "2.4",
+      "preco": "660",
       "perda": "10.0",
       "frete": "2000"
     },
     {
       "tipo": "cbuq",
-      "metragem": "1000",
-      "espessura": "4",
+      "metragem": "2000",
+      "espessura": "2",
       "densidade": "2.4",
       "preco": "660",
       "perda": "10.0",
-      "frete": "2000"
+      "frete": ""
     }
   ],
   "colas": [
     {
       "tipo": "CM-30",
-      "metragem": "500",
+      "metragem": "1000",
       "litro_m": "1",
-      "litro_tonel": "200",
+      "litro_tonel": "1000",
       "preco_tonel": "1300",
       "perda": "10.0",
-      "frete_tonel": "2000"
+      "frete_tonel": ""
     },
     {
       "tipo": "RR-2C",
-      "metragem": "1000",
+      "metragem": "2000",
       "litro_m": "1",
-      "litro_tonel": "200",
+      "litro_tonel": "1000",
       "preco_tonel": "1300",
       "perda": "7",
-      "frete_tonel": "2000"
+      "frete_tonel": ""
     }
   ],
   "terra": [],
   "extras": [
     {
       "tipo": "Funcionários",
-      "quantidade": 6,
+      "quantidade": 2,
       "valor_unitario": 120,
-      "total": 720
+      "total": 240
     },
     {
       "tipo": "Alimentação",
@@ -61,38 +61,38 @@
     {
       "tipo": "Estadia",
       "quantidade": 6,
-      "valor_unitario": 150,
-      "total": 900
+      "valor_unitario": 80,
+      "total": 480
     },
     {
       "tipo": "Caminhão Basculante",
-      "quantidade": 1,
+      "quantidade": 6,
       "valor_unitario": 600,
-      "total": 600
+      "total": 3600
     },
     {
       "tipo": "Pá Carregadeira",
-      "quantidade": 1,
+      "quantidade": 2,
       "valor_unitario": 450,
-      "total": 450
+      "total": 900
     },
     {
       "tipo": "Rolo Compactador",
-      "quantidade": 1,
+      "quantidade": 4,
       "valor_unitario": 350,
-      "total": 350
+      "total": 1400
     },
     {
       "tipo": "Pavimentadora",
-      "quantidade": 1,
+      "quantidade": 4,
       "valor_unitario": 800,
-      "total": 800
+      "total": 3200
     },
     {
       "tipo": "Compactador Manual",
-      "quantidade": 1,
+      "quantidade": 8,
       "valor_unitario": 50,
-      "total": 50
+      "total": 400
     },
     {
       "tipo": "Sinalização",
@@ -102,12 +102,18 @@
     },
     {
       "tipo": "Transporte",
-      "quantidade": 1,
-      "valor_unitario": 1000,
-      "total": 1000
+      "quantidade": 6,
+      "valor_unitario": 100,
+      "total": 600
+    },
+    {
+      "tipo": "Outros",
+      "quantidade": 4,
+      "valor_unitario": 0,
+      "total": 0
     }
   ],
   "resumo": {
-    "geral": 296706
+    "geral": 139280
   }
 }

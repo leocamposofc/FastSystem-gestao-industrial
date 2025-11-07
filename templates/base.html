@@ -3,7 +3,7 @@
 <head>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <meta charset="UTF-8">
-    <title>{% block title %}Camp's Serviços{% endblock %}</title>
+    <title>{% block title %} {{ empresa_nome }} {% endblock %}</title>
 
     <style>
         /* Reset básico */
@@ -13,11 +13,34 @@
             padding: 0;
         }
 
-        body {
+        /* body {
             font-family: 'Inter', Arial, sans-serif;
-            background: #474646 url('{{ url_for("static", filename="industrial-texture.png") }}') repeat;
+            background: #f7fa4d url('{{ url_for("static", filename="industrial-texture.png") }}') repeat;
             color: #eee;
+        } */
+        /* ===== ESTILO BASE DO BODY ===== */
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+            background: radial-gradient(circle at top left, #2b2b2b, #1a1a1a 70%);
         }
+
+        /* ===== TEXTURA E GRADIENTE DE FUNDO ===== */
+        .background-texture {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(45deg, rgba(255, 204, 0, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 204, 0, 0.05) 50%, rgba(255, 204, 0, 0.05) 75%, transparent 75%, transparent);
+            background-size: 60px 60px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        
         h2, h3 , h1 , h4, h5, h6 , p, label , span , hr, a{
             color: #333;
         }
@@ -63,10 +86,11 @@
             max-width: 1200px;
             margin: 60px auto;
             padding: 30px;
-            background: rgba(224, 224, 221, 0.884); /* semi-transparente */
+            background: rgb(255, 255, 255, 0.74); /* semi-transparente */
             border-radius: 12px;
+            border: 2px solid #ffcc00;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-            color: #eee;
+            color: #b6b4b4;
         }
 
         /* FOOTER */
@@ -173,10 +197,12 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-
+    <div class="background-texture"></div>
 <header>
     <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo da Empresa">
+    <h3 style="text-align: left; color: #eeeeeebe;"> {{ sistema_nome }} - {{ empresa_nome }} </h3>
     <a href="{{ url_for('inicio') }}">Início</a>
+    {%block header %}{% endblock %}
 </header>
 
 <!-- <div class="container"> -->
@@ -184,7 +210,7 @@
 <!-- </div> -->
 
 <footer>
-    © 2025 Camp's Serviços - Todos os direitos reservados.
+    © 2025 {{ empresa_nome }} - Todos os direitos reservados.
 </footer>
 
 </body>

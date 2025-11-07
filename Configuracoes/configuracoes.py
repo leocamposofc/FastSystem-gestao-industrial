@@ -24,8 +24,11 @@ massa_total = 0.0           # em toneladas
 custo_total = 0.0           # em R$
 
 # Configurações do desenvolvedor
-nome_empresa = "Camps serviços"
+nome_empresa = "Camp's serviços"
+slogan_empresa = "Solidez e experiencia em cada metro de asfalto."
 site_empresa = "www.campsservicos.com.br"
 email_empresa = "campsservicos@gmail.com"
 validade_orcamento_dias = 15  # validade do orçamento em dias
 senha_de_seguranca = "camps123"  # senha de segurança para deletar clientes no db
+nome_sistema = "FastSystem - Gestão Industrial"
+versao_sistema = "1.0.0"
