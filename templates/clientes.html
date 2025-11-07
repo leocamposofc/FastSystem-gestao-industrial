@@ -1,105 +1,312 @@
 {% extends "base.html" %}
 {% block head %}
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; }
-        .container {
-            max-width: 1900px;
-            margin: 30px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(42, 57, 78, 0.08);
-        h2 { text-align: center; margin-bottom: 20px; }
-        form { margin-bottom: 30px; }
-        input, select, textarea { width: 100%; padding: 8px; margin: 6px 0; border-radius: 4px; border: 1px solid #ccc; }
-        button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #007bff; color: #fff; }
-        .del-form { display:inline; }
-        #popup {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: green;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            z-index: 999;
-        }
-        .btn-cadastro { display: block; width: 10% ; margin: 12px 0; padding: 12px; font-size: 16px; border: none; border-radius: 5px; background: #007bff; color: #fff; cursor: pointer; text-decoration: none; text-align: center; }
-        .btn-cadastro:hover { background: #0056b3; }
-    </style>
-    {% endblock %}
-{% block content %}
-    <div id="popup"></div>
-        
-        <a href="/cliente_cadastro" class="btn-cadastro">Novo cadastro (+)</a>
+<style>
+    body {
+        font-family: 'Segoe UI', Roboto, sans-serif;
+        background: #f4f6f9;
+    }
 
-        <div>
-        <h3>Lista de Clientes</h3>
-        <table>
+    .container {
+        max-width: 1500px;
+        margin: 60px auto;
+        padding: 30px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+        text-align: center;
+        color: #2a3b58;
+        margin-bottom: 25px;
+        font-size: 26px;
+        letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .btn-cadastro {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-cadastro:hover {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #0056b3, #00408a);
+    }
+
+    .filter-bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        justify-content: space-between;
+    }
+
+    .filter-bar input, .filter-bar select {
+        padding: 10px 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-bar input:focus, .filter-bar select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+        outline: none;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    thead {
+        background: #007bff;
+        color: white;
+    }
+
+    th, td {
+        padding: 12px 14px;
+        text-align: left;
+    }
+
+    tr:nth-child(even) {
+        background: #f8faff;
+    }
+
+    tr:hover {
+        background: #eef4ff;
+        transition: 0.2s;
+    }
+
+    th {
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.4px;
+    }
+
+    .acoes {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .btn-editar, .btn-deletar {
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .btn-editar {
+        background: #17a2b8;
+        color: white;
+    }
+    .btn-editar:hover {
+        background: #0e7686;
+    }
+
+    .btn-deletar {
+        background: #dc3545;
+        color: white;
+    }
+    .btn-deletar:hover {
+        background: #b32d3b;
+    }
+
+    .senha-input {
+        width: 100px;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    /* popup */
+    #popup {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 999;
+    }
+
+    /* Responsivo */
+    @media (max-width: 900px) {
+        table, thead, tbody, th, td, tr {
+            display: block;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        td:last-child {
+            border-bottom: none;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #333;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header-actions">
+        <h2>📋 Lista de Clientes</h2>
+        <a href="/cliente_cadastro" class="btn-cadastro">➕ Novo Cliente</a>
+    </div>
+
+    <!-- Barra de Filtros -->
+    <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por nome, empresa, cidade ou estado...">
+        <select id="filterTipo">
+            <option value="">Filtrar por tipo</option>
+            <option value="cliente">Cliente</option>
+            <option value="fornecedor">Fornecedor</option>
+        </select>
+    </div>
+
+    <table id="clientesTable">
+        <thead>
             <tr>
                 <th>ID</th>
                 <th>Nome</th>
                 <th>Sobrenome</th>
                 <th>Empresa</th>
                 <th>CNPJ</th>
-                <th>Celular 1</th>
-                <th>Celular 2</th>
+                <th>Celular</th>
                 <th>Email</th>
                 <th>Tipo</th>
-                <th>Endereço</th>
                 <th>Cidade</th>
                 <th>Estado</th>
-                <th>CEP</th>
-                <th>Observações</th>
                 <th>Ações</th>
             </tr>
+        </thead>
+        <tbody>
             {% for cliente in clientes %}
             <tr>
-                <td>{{ cliente.id }}</td>
-                <td>{{ cliente.nome }}</td>
-                <td>{{ cliente.sobrenome }}</td>
-                <td>{{ cliente.empresa }}</td>
-                <td>{{ cliente.cnpj }}</td>
-                <td>{{ cliente.celular1 }}</td>
-                <td>{{ cliente.celular2 }}</td>
-                <td>{{ cliente.email }}</td>
-                <td>{{ cliente.tipo }}</td>
-                <td>{{ cliente.endereco }}</td>
-                <td>{{ cliente.cidade }}</td>
-                <td>{{ cliente.estado }}</td>
-                <td>{{ cliente.cep }}</td>
-                <td>{{ cliente.observacoes }}</td>
-                <td>
-                    <form method="post" class="del-form" style="display:inline;">
-                        <input type="hidden" name="deletar_id" value="{{ cliente.id }}">
-                        <input type="password" name="senha_deletar" placeholder="Senha" required style="width:80px;">
-                        <button type="submit" onclick="return confirm('Deseja realmente deletar este cliente?');">Deletar</button>
-                    </form>
+                <td data-label="ID">{{ cliente.id }}</td>
+                <td data-label="Nome">{{ cliente.nome }}</td>
+                <td data-label="Sobrenome">{{ cliente.sobrenome }}</td>
+                <td data-label="Empresa">{{ cliente.empresa }}</td>
+                <td data-label="CNPJ">{{ cliente.cnpj }}</td>
+                <td data-label="Celular">{{ cliente.celular1 }}</td>
+                <td data-label="Email">{{ cliente.email }}</td>
+                <td data-label="Tipo">{{ cliente.tipo }}</td>
+                <td data-label="Cidade">{{ cliente.cidade }}</td>
+                <td data-label="Estado">{{ cliente.estado }}</td>
+                <td data-label="Ações">
+                    <div class="acoes">
+                        <a href="/clientes/{{ cliente.id }}/view" class="btn-editar">✏️ Editar</a>
+                        <form method="post" class="del-form" onsubmit="return confirm('Deseja realmente deletar este cliente?');">
+                            <input type="hidden" name="deletar_id" value="{{ cliente.id }}">
+                            <input type="password" name="senha_deletar" placeholder="Senha" required class="senha-input">
+                            <button type="submit" class="btn-deletar">🗑️ Excluir</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
-        </table>
-        <p style="font-size:12px;">* Campos obrigatórios</p>
-        </div>
+        </tbody>
+    </table>
+</div>
 
-    <script>
-        function showPopup(message) {
-            var popup = document.getElementById("popup");
-            popup.innerText = message;
-            popup.style.display = "block";
-            setTimeout(function() {
-                popup.style.display = "none";
-            }, 3000);
-        }
+<div id="popup"></div>
 
-        {% if sucesso %}
-        showPopup("{{ sucesso }}");
-        {% endif %}
-        
-    </script>
+<script>
+// popup sucesso
+function showPopup(message) {
+    const popup = document.getElementById("popup");
+    popup.innerText = message;
+    popup.style.display = "block";
+    setTimeout(() => popup.style.display = "none", 3000);
+}
+{% if sucesso %}
+showPopup("{{ sucesso }}");
+{% endif %}
+
+// Filtro e busca dinâmica
+const searchInput = document.getElementById("searchInput");
+const filterTipo = document.getElementById("filterTipo");
+const table = document.getElementById("clientesTable").getElementsByTagName("tbody")[0];
+
+function filtrarTabela() {
+    const termo = searchInput.value.toLowerCase();
+    const tipoSelecionado = filterTipo.value.toLowerCase();
+    const linhas = table.getElementsByTagName("tr");
+
+    for (let linha of linhas) {
+        const cells = linha.getElementsByTagName("td");
+        const nome = cells[1]?.innerText.toLowerCase() || "";
+        const empresa = cells[3]?.innerText.toLowerCase() || "";
+        const cidade = cells[8]?.innerText.toLowerCase() || "";
+        const estado = cells[9]?.innerText.toLowerCase() || "";
+        const tipo = cells[7]?.innerText.toLowerCase() || "";
+
+        const matchBusca =
+            nome.includes(termo) ||
+            empresa.includes(termo) ||
+            cidade.includes(termo) ||
+            estado.includes(termo);
+
+        const matchTipo = !tipoSelecionado || tipo === tipoSelecionado;
+
+        linha.style.display = matchBusca && matchTipo ? "" : "none";
+    }
+}
+
+searchInput.addEventListener("input", filtrarTabela);
+filterTipo.addEventListener("change", filtrarTabela);
+</script>
 {% endblock %}

@@ -17,6 +17,11 @@ def calcular_custo(metragem, espessura_cm, preco_por_m3=250):
     custo_estimado = volume_m3 * preco_por_m3
     return custo_estimado
 
+def get_db_connection():
+    conn = sqlite3.connect('clientes.db')
+    conn.row_factory = sqlite3.Row  # permite acessar colunas por nome
+    return conn
+
 
 @app.route("/cotador", methods=["GET", "POST"])
 def index():
@@ -484,6 +489,52 @@ def cliente_cadastro():
 @app.route("/exemplo", methods=["GET", "POST"])
 def exemplo():
     return render_template("exemplo.html")
+
+@app.route('/clientes/<int:id>/view', methods=['GET', 'POST'])
+def editar_cliente(id):
+    conn = get_db_connection()
+
+    if request.method == 'POST':
+        # Pega dados do formulário
+        nome = request.form['nome']
+        sobrenome = request.form.get('sobrenome')
+        empresa = request.form['empresa']
+        cnpj = request.form.get('cnpj')
+        celular1 = request.form['celular1']
+        celular2 = request.form.get('celular2')
+        email = request.form['email']
+        tipo = request.form['tipo']
+
+        cep = request.form['cep']
+        cidade = request.form['cidade']
+        estado = request.form['estado']
+        bairro = request.form['bairro']
+        endereco = request.form['endereco']
+        numero = request.form['numero']
+        complemento = request.form.get('complemento')
+
+        # Atualiza no banco
+        conn.execute("""
+            UPDATE clientes SET
+                nome=?, sobrenome=?, empresa=?, cnpj=?, celular1=?, celular2=?,
+                email=?, tipo=?, cep=?, cidade=?, estado=?, bairro=?,
+                endereco=?, numero=?, complemento=?
+            WHERE id=?
+        """, (nome, sobrenome, empresa, cnpj, celular1, celular2, email, tipo,
+              cep, cidade, estado, bairro, endereco, numero, complemento, id))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('clientes'))  # volta pra lista
+
+    # Se for GET → busca os dados e mostra o form
+    cliente = conn.execute('SELECT * FROM clientes WHERE id = ?', (id,)).fetchone()
+    conn.close()
+
+    if cliente is None:
+        return "Cliente não encontrado", 404
+
+    return render_template('cliente_editar.html', cliente=cliente)
 
 if __name__ == "__main__":
     app.run(debug=True)
