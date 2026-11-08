@@ -1,0 +1,61 @@
+{
+  "cliente": {
+    "id": "8",
+    "nome": "DASP Temporary Services",
+    "empresa": "DASP"
+  },
+  "massas": [
+    {
+      "tipo": "cbuq",
+      "metragem": "1000",
+      "espessura": "4",
+      "densidade": "2.4",
+      "preco": "660",
+      "perda": "10.0",
+      "frete": "2000"
+    },
+    {
+      "tipo": "brita",
+      "metragem": "200",
+      "espessura": "2",
+      "densidade": "1.5",
+      "preco": "660",
+      "perda": "10.0",
+      "frete": "2000"
+    }
+  ],
+  "colas": [
+    {
+      "tipo": "RR-2C",
+      "metragem": "1000",
+      "litro_m": "1",
+      "litro_tonel": "1000",
+      "preco_tonel": "1300",
+      "perda": "10.0",
+      "frete_tonel": "2000"
+    }
+  ],
+  "terra": [],
+  "extras": [
+    {
+      "tipo": "Funcionários",
+      "quantidade": 60,
+      "valor_unitario": 120,
+      "total": 7200
+    },
+    {
+      "tipo": "Alimentação",
+      "quantidade": 60,
+      "valor_unitario": 20,
+      "total": 1200
+    }
+  ],
+  "local_obra": {
+    "endereco": "Rua Senador Darcy Ribeiro, Itaim Paulista, São Paulo, 08121-700",
+    "lat": -23.5096829,
+    "lng": -46.3772666
+  },
+  "resumo": {
+    "geral": 140527.92
+  }
+}

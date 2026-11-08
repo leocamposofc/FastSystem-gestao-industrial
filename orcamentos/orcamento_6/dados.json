@@ -1,0 +1,88 @@
+{
+  "cliente": {
+    "id": "3",
+    "nome": "Origens açaiteria3",
+    "empresa": "origensacaiteria"
+  },
+  "massas": [
+    {
+      "tipo": "binder",
+      "metragem": "995",
+      "espessura": "4",
+      "densidade": "2.4",
+      "preco": "660",
+      "perda": "10.0",
+      "frete": "1995"
+    }
+  ],
+  "colas": [
+    {
+      "tipo": "RR-2C",
+      "metragem": "1000",
+      "litro_m": "0.5",
+      "litro_tonel": "1000",
+      "preco_tonel": "1300",
+      "perda": "10.0",
+      "frete_tonel": "2000"
+    }
+  ],
+  "terra": [],
+  "extras": [
+    {
+      "tipo": "Funcionários",
+      "quantidade": 36,
+      "valor_unitario": 120,
+      "total": 4320
+    },
+    {
+      "tipo": "Alimentação",
+      "quantidade": 36,
+      "valor_unitario": 27.9,
+      "total": 1004.4000000000001
+    },
+    {
+      "tipo": "Estadia",
+      "quantidade": 36,
+      "valor_unitario": 120,
+      "total": 4320
+    },
+    {
+      "tipo": "Caminhão Basculante",
+      "quantidade": 12,
+      "valor_unitario": 600,
+      "total": 7200
+    },
+    {
+      "tipo": "Rolo Compactador",
+      "quantidade": 12,
+      "valor_unitario": 350,
+      "total": 4200
+    },
+    {
+      "tipo": "Pavimentadora",
+      "quantidade": 6,
+      "valor_unitario": 800,
+      "total": 4800
+    },
+    {
+      "tipo": "Sinalização",
+      "quantidade": 18,
+      "valor_unitario": 100,
+      "total": 1800
+    },
+    {
+      "tipo": "Transporte",
+      "quantidade": 12,
+      "valor_unitario": 20,
+      "total": 240
+    }
+  ],
+  "local_obra": {
+    "endereco": "Shopping Aricanduva, Cidade Líder, São Paulo, 03527-900",
+    "lat": -23.565902,
+    "lng": -46.5030749
+  },
+  "resumo": {
+    "geral": 217065.14
+  }
+}

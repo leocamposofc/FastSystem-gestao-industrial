@@ -266,8 +266,16 @@
 function selecionarCliente() {
     const cliente = document.getElementById("clienteSelect").value;
     const cotadorDiv = document.getElementById("cotadorDiv");
+
     if (cliente) {
         cotadorDiv.style.display = "block";
+
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 200);
+
     } else {
         cotadorDiv.style.display = "none";
     }
@@ -648,12 +656,6 @@ function selecionarCliente() {
 
 </div>
 
-<!-- SISTEMA DE GOOGLE MAPS -->
-<!-- <div class="container" style="margin-top: 30px;">
-    <h3>Local da Obra</h3>
-        <input id="local_obra" type="text" placeholder="Digite o endereço" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;" required>
-        <div id="mapa" style="width:100%;height:300px;margin-top:10px;border-radius:10px;"></div>
-</div> -->
 
 <!-- LOCAL DA OBRA / ANTIGO GOOGLE MAPS -->
 <div class="container" style="margin-top: 30px;">
@@ -674,7 +676,6 @@ function selecionarCliente() {
 
     <div id="mapa" style="width:100%;height:300px;margin-top:10px;border-radius:10px;"></div>
 </div>
-
 
 
 <!-- CONFIGURAÇÕES FINAIS -->
@@ -783,6 +784,7 @@ Carrega a API do Google Maps
 <script src="https://maps.googleapis.com/maps/api/js?key=SUA_CHAVE_API&libraries=places&callback=initMap" async defer></script> -->
 
 
+
 <!-- LEAFLET -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -790,32 +792,36 @@ Carrega a API do Google Maps
 let map;
 let marker;
 let timeoutBusca;
+let controleBusca = 0;
 
+// INICIALIZA MAPA
 function initMap() {
-
-    // Localização inicial: São Paulo
     const inicial = [-23.55052, -46.633308];
+
+    const elementoMapa = document.getElementById("mapa");
+    const input = document.getElementById("local_obra");
+
+    if (!elementoMapa || !input || typeof L === "undefined") {
+        console.error("Mapa, campo de endereço ou Leaflet não encontrado.");
+        return;
+    }
 
     map = L.map("mapa").setView(inicial, 15);
 
-    // Mapa OpenStreetMap
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    // Marcador inicial
     marker = L.marker(inicial, {
         draggable: true
     }).addTo(map);
 
-    // Pesquisa de endereço
-    const input = document.getElementById("local_obra");
-
-    input.addEventListener("input", function() {
+    // Pesquisa ao digitar
+    input.addEventListener("input", function () {
         buscarEndereco(this.value);
     });
 
-    // Permite reposicionar o marcador clicando no mapa
+    // Atualiza marcador ao clicar no mapa
     map.on("click", function(e) {
         marker.setLatLng(e.latlng);
     });
@@ -826,42 +832,63 @@ function initMap() {
             document.getElementById("sugestoes_endereco").style.display = "none";
         }
     });
+
+    console.log("Mapa e campo de pesquisa inicializados.");
 }
 
 
-// PESQUISA PHOTON
+// BUSCA DE ENDEREÇOS PELO PHOTON
 async function buscarEndereco(termo) {
-
     const lista = document.getElementById("sugestoes_endereco");
 
     clearTimeout(timeoutBusca);
+
+    const pesquisa = ++controleBusca;
 
     if (termo.trim().length < 3) {
         lista.style.display = "none";
         return;
     }
 
-    timeoutBusca = setTimeout(async () => {
+    lista.innerHTML = '<div class="item-endereco">Buscando endereço...</div>';
+    lista.style.display = "block";
 
+    timeoutBusca = setTimeout(async function() {
         try {
-
             const url = new URL("https://photon.komoot.io/api/");
 
-            url.searchParams.set("q", termo);
+            url.searchParams.set("q", termo.trim());
             url.searchParams.set("limit", "6");
-            url.searchParams.set("lang", "pt");
+            <!-- lang está retornando erro 400 -->
+            <!-- url.searchParams.set("lang", "pt"); -->
             url.searchParams.set("lat", "-23.55052");
             url.searchParams.set("lon", "-46.633308");
 
+            console.log("Consultando Photon:", url.toString());
+
             const resposta = await fetch(url);
-            if (!resposta.ok) throw new Error("Falha na pesquisa");
+
+            if (!resposta.ok) {
+                const detalhe = await resposta.text();
+                console.error("Resposta do Photon:", detalhe);
+                throw new Error("Photon HTTP " + resposta.status + ": " + detalhe);
+            }
 
             const dados = await resposta.json();
 
+            // Ignora respostas antigas
+            if (pesquisa !== controleBusca) return;
+
+            console.log("Resultados recebidos:", dados.features);
+
             lista.innerHTML = "";
 
-            dados.features.forEach(item => {
+            if (!dados.features || dados.features.length === 0) {
+                lista.innerHTML = '<div class="item-endereco">Nenhum endereço encontrado.</div>';
+                return;
+            }
 
+            dados.features.forEach(item => {
                 const p = item.properties;
                 const coords = item.geometry.coordinates;
 
@@ -881,7 +908,6 @@ async function buscarEndereco(termo) {
                 opcao.className = "item-endereco";
                 opcao.textContent = endereco;
 
-                // Seleciona endereço
                 opcao.addEventListener("mousedown", function(e) {
                     e.preventDefault();
 
@@ -899,12 +925,13 @@ async function buscarEndereco(termo) {
                 lista.appendChild(opcao);
             });
 
-            lista.style.display =
-                dados.features.length ? "block" : "none";
-
         } catch (erro) {
-            console.error("Erro Photon:", erro);
-            lista.style.display = "none";
+            if (pesquisa !== controleBusca) return;
+
+            console.error("Erro na busca Photon:", erro);
+
+            lista.innerHTML =
+                '<div class="item-endereco">Erro ao consultar endereços. Verifique sua conexão ou tente novamente.</div>';
         }
 
     }, 400);
@@ -913,6 +940,9 @@ async function buscarEndereco(termo) {
 
 // RETORNA COORDENADAS PARA O FLASK
 function getCoordenadasObra() {
+    if (!marker) {
+        return null;
+    }
 
     const pos = marker.getLatLng();
 
@@ -924,8 +954,12 @@ function getCoordenadasObra() {
 }
 
 
-// INICIALIZA MAPA
-document.addEventListener("DOMContentLoaded", initMap);
+// INICIALIZAÇÃO
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMap);
+} else {
+    initMap();
+}
 
 </script>
 
@@ -1350,7 +1384,7 @@ document.getElementById("btnEmitir").addEventListener("click", async function() 
             colas: [],
             terra: [],
             extras: coletarCustosExtras(),
-            local_obra: localObra,
+            local_obra: getCoordenadasObra(),
             resumo: {
                 geral: parseFloat(document.getElementById("resumo_geral").textContent) || 0
             }
