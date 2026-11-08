@@ -17,10 +17,12 @@ def calcular_custo(metragem, espessura_cm, preco_por_m3=250):
     custo_estimado = volume_m3 * preco_por_m3
     return custo_estimado
 
+
 def get_db_connection():
     conn = sqlite3.connect('clientes.db')
     conn.row_factory = sqlite3.Row  # permite acessar colunas por nome
     return conn
+
 
 def safe_float(value):
     try:
@@ -39,12 +41,13 @@ def inject_config():
         sistema_nome=configuracoes.nome_sistema
     )
 
+
 @app.route("/cotador", methods=["GET", "POST"])
 def index():
     # conectando ao banco de dados
     conn = sqlite3.connect("clientes.db")
     cursor = conn.cursor()
-    #buscando clientes
+    # buscando clientes
     cursor.execute("SELECT id, nome, empresa FROM clientes")
     clientes = cursor.fetchall()
 
@@ -198,6 +201,7 @@ def salvar_orcamento():
 
     return jsonify({"status": "sucesso", "orcamento_id": orcamento_id})
 
+
 @app.route("/orcamentos")
 def listar_orcamentos():
     conn = sqlite3.connect("orcamentos.db")
@@ -222,7 +226,8 @@ def listar_orcamentos():
         try:
             data_criacao = datetime.fromisoformat(data_criacao_str)
         except ValueError:
-            data_criacao = datetime.strptime(data_criacao_str, "%Y-%m-%d %H:%M:%S")
+            data_criacao = datetime.strptime(
+                data_criacao_str, "%Y-%m-%d %H:%M:%S")
 
         if hoje - data_criacao > prazo_validade:
             cur.execute("""
@@ -260,6 +265,7 @@ def listar_orcamentos():
         orcamentos=orcamentos,
         status_opcoes=status_opcoes
     )
+
 
 @app.route("/atualizar_status", methods=["POST"])
 def atualizar_status():
@@ -302,16 +308,20 @@ def ver_orcamento(orcamento_id):
         return f"<h3>Orçamento #{orcamento_id} não encontrado.</h3>"
 
     # Tabelas relacionadas
-    cur.execute("SELECT * FROM camadas_massa WHERE orcamento_id=?", (orcamento_id,))
+    cur.execute("SELECT * FROM camadas_massa WHERE orcamento_id=?",
+                (orcamento_id,))
     massas = cur.fetchall()
 
-    cur.execute("SELECT * FROM camadas_cola WHERE orcamento_id=?", (orcamento_id,))
+    cur.execute("SELECT * FROM camadas_cola WHERE orcamento_id=?",
+                (orcamento_id,))
     colas = cur.fetchall()
 
-    cur.execute("SELECT * FROM terraplanagem WHERE orcamento_id=?", (orcamento_id,))
+    cur.execute("SELECT * FROM terraplanagem WHERE orcamento_id=?",
+                (orcamento_id,))
     terra = cur.fetchall()
 
-    cur.execute("SELECT * FROM custos_extras WHERE orcamento_id=?", (orcamento_id,))
+    cur.execute("SELECT * FROM custos_extras WHERE orcamento_id=?",
+                (orcamento_id,))
     extras = cur.fetchall()
 
     conn.close()
@@ -320,6 +330,7 @@ def ver_orcamento(orcamento_id):
         "ver_orcamento.html",
         orc=orc, massas=massas, colas=colas, terra=terra, extras=extras
     )
+
 
 @app.route("/emitir_orcamento", methods=["POST"])
 def emitir_orcamento():
@@ -410,7 +421,7 @@ def inicio():
 @app.route("/clientes", methods=["GET", "POST"])
 def clientes():
     mensagem = ""
-    
+
     if request.method == "POST":
         # Deletar cliente
         if "deletar_id" in request.form:
@@ -420,7 +431,8 @@ def clientes():
                 try:
                     banco = sqlite3.connect('clientes.db')
                     cursor = banco.cursor()
-                    cursor.execute("DELETE FROM clientes WHERE id = ?", (deletar_id,))
+                    cursor.execute(
+                        "DELETE FROM clientes WHERE id = ?", (deletar_id,))
                     banco.commit()
                     mensagem = "Cliente deletado com sucesso!"
                 except Exception as e:
@@ -466,6 +478,7 @@ def clientes():
         banco.close()
 
     return render_template("clientes.html", clientes=clientes_lista, sucesso=mensagem)
+
 
 @app.route("/cliente_cadastro", methods=["GET", "POST"])
 def cliente_cadastro():
@@ -541,9 +554,11 @@ def cliente_cadastro():
 
     return render_template("cliente_cadastro.html", mensagem=mensagem)
 
+
 @app.route("/exemplo", methods=["GET", "POST"])
 def exemplo():
     return render_template("exemplo.html")
+
 
 @app.route('/clientes/<int:id>/view', methods=['GET', 'POST'])
 def editar_cliente(id):
@@ -583,7 +598,8 @@ def editar_cliente(id):
         return redirect(url_for('clientes'))  # volta pra lista
 
     # Se for GET → busca os dados e mostra o form
-    cliente = conn.execute('SELECT * FROM clientes WHERE id = ?', (id,)).fetchone()
+    cliente = conn.execute(
+        'SELECT * FROM clientes WHERE id = ?', (id,)).fetchone()
     conn.close()
 
     if cliente is None:
@@ -591,5 +607,7 @@ def editar_cliente(id):
 
     return render_template('cliente_editar.html', cliente=cliente)
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
