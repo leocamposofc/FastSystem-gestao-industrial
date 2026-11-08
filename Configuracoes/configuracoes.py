@@ -3,7 +3,7 @@ densidade_asfalto = 0.0     # em kg/m³
 preco_asfalto_por_tonelada = 0.0  # em R$
 fator_perda = 0.0           # percentual de perda (%)
 fator_compactacao = 0.0     # percentual de compactação (%)
-litros_por_tonel= 200       # quantidade de litros que um tonel de cola tem
+litros_por_tonel = 200       # quantidade de litros que um tonel de cola tem
 preco_tonel = 1300         # em R$ (preço padrão do tonel de cola)
 frete_tonel = 2000         # em R$ (frete padrão por tonel)
 
@@ -15,7 +15,7 @@ custo_caminhao_cacamba = 2000.0  # em R$ (valor do custo do caminhão caçamba)
 custo_pavimentadora = 2000.0     # em R$ (valor do custo da pavimentadora)
 custo_sinalizacao = 0.0       # em R$ (valor do custo da sinalização)
 custo_outros = 0.0            # em R$ (outros custos)
-preco_massa = 660 # em R$ (preço padrão da massa asfáltica por tonelada)
+preco_massa = 660  # em R$ (preço padrão da massa asfáltica por tonelada)
 margem_perda = 10.0  # em % (margem padrão de perda/compactação)
 
 # Resultados do cálculo (inicializados)
@@ -30,5 +30,5 @@ site_empresa = "www.campsservicos.com.br"
 email_empresa = "campsservicos@gmail.com"
 validade_orcamento_dias = 15  # validade do orçamento em dias
 senha_de_seguranca = "camps123"  # senha de segurança para deletar clientes no db
-nome_sistema = "FastSystem - Gestão Industrial"
-versao_sistema = "1.0.0"
+nome_sistema = "FastSystem - Gestão Industrial v_{versao_sistema}"
+versao_sistema = "1.1-beta"
