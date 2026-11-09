@@ -133,14 +133,15 @@
 <body>
     <div class="container">
         <h1>{{ empresa_nome }}</h1>
-        <h2>{{ sistema_nome }}</h2>
+        <h1 style="font-size: 0.6rem">{{ empresa_slogan }}</h1>
+        <h2>by {{ sistema_nome }}</h2>
 
         <a href="/cotador" class="menu-btn">Cotador</a>
         <a href="/orcamentos" class="menu-btn">Orçamentos</a>
         <a href="/clientes" class="menu-btn">Clientes</a>
         <a href="/configuracoes" class="menu-btn">Configurações</a>
 
-        <footer>© 2025 {{ empresa_nome }} • {{ empresa_slogan }}</footer>
+        <footer>© 2025 - Todos os direitos reservados: {{ sistema_nome }} • Versão {{ versao_sistema}} </footer>
     </div>
 </body>
 </html>

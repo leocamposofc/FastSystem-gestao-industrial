@@ -30,5 +30,5 @@ site_empresa = "www.campsservicos.com.br"
 email_empresa = "campsservicos@gmail.com"
 validade_orcamento_dias = 15  # validade do orçamento em dias
 senha_de_seguranca = "camps123"  # senha de segurança para deletar clientes no db
-versao_sistema = "1.2-beta"
-nome_sistema = f"FastSystem - Gestão Industrial v_{versao_sistema}"
+versao_sistema = "1.3-beta"
+nome_sistema = "FastSystem - Gestão Industrial"

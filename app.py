@@ -38,7 +38,8 @@ def inject_config():
         empresa_slogan=configuracoes.slogan_empresa,
         empresa_site=configuracoes.site_empresa,
         empresa_email=configuracoes.email_empresa,
-        sistema_nome=configuracoes.nome_sistema
+        sistema_nome=configuracoes.nome_sistema,
+        versao_sistema=configuracoes.versao_sistema
     )
 
 
