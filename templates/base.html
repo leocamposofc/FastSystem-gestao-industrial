@@ -1,217 +1,152 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <meta charset="UTF-8">
-    <title>{% block title %} {{ empresa_nome }} {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo_documento %}FastSystem{% endblock %} | FastSystem</title>
 
     <style>
-        /* Reset básico */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --fs-grafite: #292d30;
+            --fs-amarelo: #f4c430;
+            --fs-fundo: #eceeef;
+            --fs-texto: #25292c;
+            --fs-branco: #fff;
         }
-
-        /* body {
-            font-family: 'Inter', Arial, sans-serif;
-            background: #f7fa4d url('{{ url_for("static", filename="industrial-texture.png") }}') repeat;
-            color: #eee;
-        } */
-        /* ===== ESTILO BASE DO BODY ===== */
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
             margin: 0;
-            color: #fff;
-            position: relative;
-            overflow-x: hidden;
-            background: radial-gradient(circle at top left, #2b2b2b, #1a1a1a 70%);
+            min-height: 100vh;
+            background: var(--fs-fundo);
+            color: var(--fs-texto);
+            font-family: Arial, Helvetica, sans-serif;
         }
-
-        /* ===== TEXTURA E GRADIENTE DE FUNDO ===== */
-        .background-texture {
-            position: fixed;
-            inset: 0;
-            background-image: 
-                linear-gradient(45deg, rgba(255, 204, 0, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 204, 0, 0.05) 50%, rgba(255, 204, 0, 0.05) 75%, transparent 75%, transparent);
-            background-size: 60px 60px;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        
-        h2, h3 , h1 , h4, h5, h6 , p, label , span , hr, a{
-            color: #333;
-        }
-        /* HEADER MODERNO */
-        header {
-            background-color: #121212cc; /* semi-transparente dark */
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            flex-wrap: wrap;
-            gap: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-
-        header img {
-            height: 50px;
-            width: auto;
-            border-radius: 6px;
-            object-fit: contain;
-        }
-
-        header a {
-            color: #222;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 10px 18px;
-            background-color: #f5c142; /* amarelo industrial */
-            border-radius: 6px;
-            transition: all 0.2s ease-in-out;
-        }
-
-        header a:hover {
-            background-color: #e0b032;
-        }
-
-        /* CONTAINER CENTRAL */
-        .container {
-            max-width: 1200px;
-            margin: 60px auto;
-            padding: 30px;
-            background: rgb(255, 255, 255, 0.74); /* semi-transparente */
-            border-radius: 12px;
-            border: 2px solid #ffcc00;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-            color: #b6b4b4;
-        }
-
-        /* FOOTER */
-        footer {
-            background: #121212;
-            color: #bbb;
-            text-align: center;
-            padding: 14px;
-            margin-top: 30px;
-            font-size: 14px;
-        }
-
-        /* BOTÕES INDUSTRIAIS */
-        .btn-industrial {
-            display: inline-block;
-            font-weight: 600;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            background: linear-gradient(135deg, #f5c142, #e0b032);
-            color: #222;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .btn-industrial:hover {
-            transform: scale(1.05);
-            background: linear-gradient(135deg, #e0b032, #cfa020);
-        }
-
-        /* TABELAS ESCURAS */
-        table {
+        .fs-topbar {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            border-radius: 8px;
-            overflow: hidden;
-            color: #eee;
+            min-height: 76px;
+            background: var(--fs-grafite);
+            border-bottom: 4px solid var(--fs-amarelo);
+            color: var(--fs-branco);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 12px clamp(18px, 4vw, 54px);
+            box-shadow: 0 3px 12px rgba(0,0,0,.14);
         }
-
-        thead {
-            background: #2c2c2c;
-            color: #f5c142;
+        .fs-brand-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: inherit;
+            text-decoration: none;
+            flex-shrink: 0;
+            border-radius: 6px;
+            transition: opacity .2s ease, transform .2s ease;
         }
-
-        th, td {
-            padding: 12px 14px;
-            text-align: left;
+        .fs-brand-link:hover { opacity: .88; transform: translateY(-1px); }
+        .fs-brand-link:focus-visible {
+            outline: 2px solid var(--fs-amarelo);
+            outline-offset: 5px;
         }
-
-        tr:nth-child(even) {
-            background: rgba(255, 255, 255, 0.05);
+        .fs-brand-mark {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            background: var(--fs-amarelo);
+            color: var(--fs-grafite);
+            border-radius: 7px;
+            font-size: 22px;
+            line-height: 1;
+            font-weight: 900;
+            box-shadow: inset 0 -3px 0 rgba(0,0,0,.12);
         }
-
-        tr:hover {
-            background: rgba(245, 193, 66, 0.1);
-            transition: 0.2s;
+        .fs-brand-name {
+            display: block;
+            font-size: 19px;
+            line-height: 1.1;
+            letter-spacing: 1.4px;
+            font-weight: 800;
         }
-
-        th {
+        .fs-brand-subtitle {
+            display: block;
+            margin-top: 4px;
+            color: #c4c8ca;
+            font-size: 9px;
+            line-height: 1;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        .fs-page-context { min-width: 0; text-align: right; }
+        .fs-page-section {
+            display: block;
+            margin-bottom: 5px;
+            color: #b9bec1;
+            font-size: 10px;
+            line-height: 1.2;
+            letter-spacing: 1.5px;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 13px;
-            letter-spacing: 0.4px;
         }
-
-        /* RESPONSIVO */
-        @media (max-width: 900px) {
-            table, thead, tbody, th, td, tr {
-                display: block;
+        .fs-page-name {
+            display: block;
+            color: var(--fs-branco);
+            font-size: 16px;
+            line-height: 1.25;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+        .fs-main {
+            width: min(1440px, 100%);
+            margin: 0 auto;
+            padding: 28px clamp(16px, 3vw, 38px) 48px;
+        }
+        @media (max-width: 560px) {
+            .fs-topbar { min-height: 68px; padding: 10px 15px; gap: 12px; }
+            .fs-brand-mark { width: 38px; height: 38px; font-size: 26px; }
+            .fs-brand-name { font-size: 16px; }
+            .fs-brand-subtitle { font-size: 8px; letter-spacing: 1.4px; }
+            .fs-page-section { font-size: 8px; letter-spacing: 1px; }
+            .fs-page-name { font-size: 13px; }
+            .fs-main { padding: 20px 12px 36px; }
+        }
+        @media print {
+            .fs-topbar {
+                box-shadow: none;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
             }
-
-            thead {
-                display: none;
-            }
-
-            tr {
-                margin-bottom: 15px;
-                border: 1px solid #333;
-                border-radius: 10px;
-                padding: 10px;
-                background: rgba(30, 30, 30, 0.85);
-            }
-
-            td {
-                display: flex;
-                justify-content: space-between;
-                padding: 8px;
-                border: none;
-                border-bottom: 1px solid #444;
-            }
-
-            td:last-child {
-                border-bottom: none;
-            }
-
-            td::before {
-                content: attr(data-label);
-                font-weight: bold;
-                color: #f5c142;
-            }
+            .fs-main { width: 100%; padding: 18px 0; }
         }
     </style>
 
     {% block head %}{% endblock %}
 </head>
 <body>
-    <div class="background-texture"></div>
-<header>
-    <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo da Empresa">
-    <h3 style="text-align: left; color: #eeeeeebe;"> {{ sistema_nome }} - {{ empresa_nome }} </h3>
-    <a href="{{ url_for('inicio') }}">Início</a>
-    {%block header %}{% endblock %}
-</header>
+    <header class="fs-topbar">
+        <!-- Se sua rota inicial não se chama 'index', ajuste o endpoint abaixo. -->
+        <a class="fs-brand-link"
+           href="{{ url_for('inicio') }}"
+           title="Voltar ao menu inicial"
+           aria-label="FastSystem - voltar ao menu inicial">
+            <span class="fs-brand-mark">F</span>
+            <span>
+                <span class="fs-brand-name">FASTSYSTEM</span>
+                <span class="fs-brand-subtitle">GESTÃO INDUSTRIAL</span>
+            </span>
+        </a>
 
-<!-- <div class="container"> -->
-    {% block content %}{% endblock %}
-<!-- </div> -->
+        <div class="fs-page-context" aria-live="polite">
+            <span class="fs-page-section">{% block secao_pagina %}SISTEMA{% endblock %}</span>
+            <span class="fs-page-name">{% block pagina_atual %}Início{% endblock %}</span>
+        </div>
+    </header>
 
-<footer>
-    © 2025 {{ empresa_nome }} - Todos os direitos reservados.
-</footer>
+    <main class="fs-main">
+        {% block content %}{% endblock %}
+    </main>
 
+    {% block scripts %}{% endblock %}
 </body>
 </html>

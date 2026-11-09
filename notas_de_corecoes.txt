@@ -1,0 +1,7 @@
+corrigir 
+instalar sistema de login 
+tela configurações
+enviar mais informacoes de endereço alem da cordenada ao salvar orçamento
+corrigir envio de informações de terraplanagem
+corrigir envio de cordenadas e endereço para a tela de ver orçamento
+copiar identidade visual da tela de ver orçamentos para a tela de cotação

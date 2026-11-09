@@ -1,0 +1,37 @@
+{
+  "cliente": {
+    "id": "9",
+    "nome": "Grupo Equipe 1",
+    "empresa": "Grupo Equipe"
+  },
+  "massas": [
+    {
+      "metragem": "",
+      "espessura": "",
+      "densidade": "",
+      "preco": "",
+      "perda": "10.0",
+      "frete": ""
+    }
+  ],
+  "colas": [
+    {
+      "metragem": "",
+      "litro_m": "",
+      "litro_tonel": "",
+      "preco_tonel": "",
+      "perda": "10.0",
+      "frete_tonel": ""
+    }
+  ],
+  "terra": [],
+  "extras": [],
+  "local_obra": {
+    "endereco": "",
+    "lat": -23.55052,
+    "lng": -46.633308
+  },
+  "resumo": {
+    "geral": 196560
+  }
+}
