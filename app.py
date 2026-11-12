@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
+import time
+from flask import Flask, session, abort, render_template, request, send_file, redirect, url_for, jsonify, flash
 from Configuracoes import configuracoes
 import io
 from pathlib import Path
@@ -8,8 +9,209 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import sqlite3
 from Configuracoes import configuracoes
+import os
+from functools import wraps
+
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    login_user,
+    logout_user,
+    login_required,
+    current_user
+)
+
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
 
 app = Flask(__name__, template_folder='templates')
+
+# INICIO AREA DE CONFIGURAÇÃO DE SESSÃO E LOGIN
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+
+from datetime import timedelta
+
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=5)
+
+app.config["SESSION_REFRESH_EACH_REQUEST"] = True
+
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = False #trocar para true ao usar https
+
+app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+app.config["REMEMBER_COOKIE_SECURE"] = True
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+login_manager.login_view = "login"
+login_manager.login_message = "Faça login para acessar esta página."
+login_manager.login_message_category = "warning"
+
+# Classes dos usuarios
+class Usuario(UserMixin):
+
+    def __init__(self, dados):
+        self.id = dados["id"]
+        self.nome = dados["nome"]
+        self.email = dados["email"]
+        self.cpf = dados["cpf"]
+        self.setor = dados["setor"]
+        self.funcao = dados["funcao"]
+        self.status = dados["status"]
+
+    @property
+    def is_active(self):
+        return self.status == "ativo"
+
+
+
+# CARREGAR USUÁRIO DA SESSÃO
+@login_manager.user_loader
+def carregar_usuario(usuario_id):
+
+    conn = get_usuarios_connection()
+
+    dados = conn.execute(
+        "SELECT * FROM usuarios WHERE id = ? AND status = 'ativo'",
+        (usuario_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if dados:
+        return Usuario(dados)
+
+    return None
+
+
+# CONTROLE DE INATIVIDADE - 30 MINUTOS
+@app.before_request
+def controlar_inatividade():
+
+    # Ignora usuários que ainda não fizeram login
+    if not current_user.is_authenticated:
+        return
+
+    # Não considera arquivos estáticos como atividade
+    if request.endpoint == "static":
+        return
+
+    agora = time.time()
+
+    ultima_atividade = session.get("ultima_atividade")
+
+    # Verifica se passaram 30 minutos
+    if ultima_atividade and agora - ultima_atividade > 1800: # 1800 representa 30m
+
+        logout_user()
+        session.clear()
+
+        flash(
+            "Sua sessão expirou por inatividade. Faça login novamente.",
+            "warning"
+        )
+
+        return redirect(url_for("login"))
+
+    # Atualiza o horário da última atividade
+    session["ultima_atividade"] = agora
+
+
+def permissao_required(modulo, acao):
+    colunas_validas = {
+        "visualizar",
+        "criar",
+        "editar",
+        "excluir"
+    }
+
+    if acao not in colunas_validas:
+        raise ValueError("Ação de permissão inválida.")
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+
+            # Administrador tem acesso total
+            if current_user.funcao == "admin":
+                return func(*args, **kwargs)
+
+            conn = get_usuarios_connection()
+
+            permissao = conn.execute(
+                f"""
+                SELECT {acao}
+                FROM permissoes
+                WHERE usuario_id = ? AND modulo = ?
+                """,
+                (current_user.id, modulo)
+            ).fetchone()
+
+            conn.close()
+
+            # Sem permissão, bloqueia o acesso
+            if not permissao or not permissao[0]:
+                abort(403)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def admin_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for("login"))
+
+        if current_user.funcao != "admin":
+            abort(403)
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+MODULOS_USUARIOS = [
+    {"chave": "cotador", "nome": "Cotador"},
+    {"chave": "orcamentos", "nome": "Orçamentos"},
+    {"chave": "clientes", "nome": "Clientes"},
+    {"chave": "equipamentos", "nome": "Equipamentos"},
+    {"chave": "configuracoes", "nome": "Configurações"},
+    {"chave": "usuarios", "nome": "Usuários"},
+]
+
+
+ACOES_PERMISSAO = [
+    "visualizar",
+    "criar",
+    "editar",
+    "excluir"
+]
+
+
+def obter_permissoes_formulario():
+    permissoes = {}
+
+    for modulo in MODULOS_USUARIOS:
+        chave = modulo["chave"]
+
+        permissoes[chave] = {}
+
+        for acao in ACOES_PERMISSAO:
+            campo = f"permissoes[{chave}][{acao}]"
+
+            permissoes[chave][acao] = (
+                1 if request.form.get(campo) == "1" else 0
+            )
+
+    return permissoes
 
 
 def calcular_custo(metragem, espessura_cm, preco_por_m3=250):
@@ -22,6 +224,59 @@ def get_db_connection():
     conn = sqlite3.connect('clientes.db')
     conn.row_factory = sqlite3.Row  # permite acessar colunas por nome
     return conn
+
+
+def get_usuarios_connection():
+    caminho = Path(__file__).resolve().parent / "usuarios.db"
+
+    conn = sqlite3.connect(caminho)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+
+    return conn
+
+
+def criar_tabelas_usuarios():
+    conn = get_usuarios_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            senha TEXT NOT NULL,
+            cpf TEXT NOT NULL UNIQUE,
+            setor TEXT NOT NULL,
+            funcao TEXT NOT NULL DEFAULT 'usuario'
+                CHECK(funcao IN ('admin', 'usuario')),
+            status TEXT NOT NULL DEFAULT 'ativo'
+                CHECK(status IN ('ativo', 'inativo')),
+            data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            ultimo_acesso TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS permissoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            modulo TEXT NOT NULL,
+            visualizar INTEGER NOT NULL DEFAULT 0,
+            criar INTEGER NOT NULL DEFAULT 0,
+            editar INTEGER NOT NULL DEFAULT 0,
+            excluir INTEGER NOT NULL DEFAULT 0,
+
+            FOREIGN KEY (usuario_id)
+                REFERENCES usuarios(id)
+                ON DELETE CASCADE,
+
+            UNIQUE(usuario_id, modulo)
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
 
 
 def safe_float(value):
@@ -43,7 +298,354 @@ def inject_config():
     )
 
 
+# LOGIN
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    session.permanent = True
+    session["ultima_atividade"] = time.time()
+    session["inicio_sessao"] = time.time()
+    # Se já estiver conectado, vai direto ao sistema
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+
+        email = request.form.get("email", "").strip()
+        senha = request.form.get("senha", "")
+
+        conn = get_usuarios_connection()
+
+        usuario_dados = conn.execute(
+            """
+            SELECT * FROM usuarios
+            WHERE email = ? COLLATE NOCASE
+            AND status = 'ativo'
+            """,
+            (email,)
+        ).fetchone()
+
+        conn.close()
+
+        # Verifica se o usuário existe e se a senha está correta
+        if usuario_dados and check_password_hash(
+            usuario_dados["senha"], senha
+        ):
+
+            usuario = Usuario(usuario_dados)
+
+            session.permanent = True  # Mantém a sessão ativa
+
+            login_user(usuario)
+
+            # Atualiza a data do último acesso
+            conn = get_usuarios_connection()
+
+            conn.execute(
+                """
+                UPDATE usuarios
+                SET ultimo_acesso = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (usuario.id,)
+            )
+
+            conn.commit()
+            conn.close()
+
+            return redirect(url_for("inicio"))
+
+        flash("E-mail ou senha incorretos, ou usuário inativo.", "danger")
+
+    return render_template("login.html")
+
+
+# LOGOUT
+@app.route("/logout")
+@login_required
+def logout():
+
+    logout_user()
+
+    flash("Você saiu do sistema.", "success")
+
+    return redirect(url_for("login"))
+
+
+
+# INICIO TELAS
+
+@app.route("/usuarios")
+@login_required
+@admin_required
+def listar_usuarios():
+
+    conn = get_usuarios_connection()
+
+    usuarios = conn.execute("""
+        SELECT
+            id,
+            nome,
+            email,
+            cpf,
+            setor,
+            funcao,
+            status,
+            data_cadastro,
+            ultimo_acesso
+        FROM usuarios
+        ORDER BY nome ASC
+    """).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "usuarios.html",
+        usuarios=usuarios
+    )
+
+
+@app.route("/usuarios/cadastrar", methods=["GET", "POST"])
+@login_required
+@admin_required
+def cadastrar_usuario():
+
+    if request.method == "POST":
+
+        nome = request.form.get("nome", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        cpf = "".join(filter(str.isdigit, request.form.get("cpf", "")))
+        setor = request.form.get("setor", "").strip()
+        funcao = request.form.get("funcao", "usuario")
+        status = request.form.get("status", "ativo")
+        senha = request.form.get("senha", "")
+        confirmar_senha = request.form.get("confirmar_senha", "")
+
+        if not nome or not email or not cpf or not setor:
+            flash("Preencha todos os campos obrigatórios.", "warning")
+            return redirect(url_for("cadastrar_usuario"))
+
+        if len(cpf) != 11:
+            flash("O CPF deve conter 11 números.", "warning")
+            return redirect(url_for("cadastrar_usuario"))
+
+        if len(senha) < 12:
+            flash("A senha deve ter pelo menos 12 caracteres.", "warning")
+            return redirect(url_for("cadastrar_usuario"))
+
+        if senha != confirmar_senha:
+            flash("As senhas não coincidem.", "warning")
+            return redirect(url_for("cadastrar_usuario"))
+
+        if funcao not in ("admin", "usuario"):
+            flash("Tipo de usuário inválido.", "warning")
+            return redirect(url_for("cadastrar_usuario"))
+
+        if status not in ("ativo", "inativo"):
+            flash("Status inválido.", "warning")
+            return redirect(url_for("cadastrar_usuario"))
+
+        permissoes = obter_permissoes_formulario()
+
+        conn = get_usuarios_connection()
+
+        try:
+            cursor = conn.execute("""
+                INSERT INTO usuarios
+                (nome, email, senha, cpf, setor, funcao, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                nome,
+                email,
+                generate_password_hash(senha),
+                cpf,
+                setor,
+                funcao,
+                status
+            ))
+
+            usuario_id = cursor.lastrowid
+
+            for modulo, acoes in permissoes.items():
+                conn.execute("""
+                    INSERT INTO permissoes
+                    (usuario_id, modulo, visualizar, criar, editar, excluir)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    usuario_id,
+                    modulo,
+                    acoes["visualizar"],
+                    acoes["criar"],
+                    acoes["editar"],
+                    acoes["excluir"]
+                ))
+
+            conn.commit()
+
+            flash("Usuário cadastrado com sucesso!", "success")
+            return redirect(url_for("listar_usuarios"))
+
+        except sqlite3.IntegrityError:
+            conn.rollback()
+            flash("Este e-mail ou CPF já está cadastrado.", "warning")
+
+        finally:
+            conn.close()
+
+        return redirect(url_for("cadastrar_usuario"))
+
+    return render_template(
+        "cadastrar_usuario.html",
+        modulos=MODULOS_USUARIOS
+    )
+
+
+@app.route("/usuarios/<int:usuario_id>/editar", methods=["GET", "POST"])
+@login_required
+@admin_required
+def editar_usuario(usuario_id):
+
+    conn = get_usuarios_connection()
+
+    usuario = conn.execute("""
+        SELECT *
+        FROM usuarios
+        WHERE id = ?
+    """, (usuario_id,)).fetchone()
+
+    if not usuario:
+        conn.close()
+        flash("Usuário não encontrado.", "warning")
+        return redirect(url_for("listar_usuarios"))
+
+    if request.method == "POST":
+
+        nome = request.form.get("nome", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        setor = request.form.get("setor", "").strip()
+        funcao = request.form.get("funcao", "usuario")
+        status = request.form.get("status", "ativo")
+        senha = request.form.get("senha", "")
+        confirmar_senha = request.form.get("confirmar_senha", "")
+
+        if not nome or not email or not setor:
+            conn.close()
+            flash("Preencha todos os campos obrigatórios.", "warning")
+            return redirect(url_for("editar_usuario", usuario_id=usuario_id))
+
+        if funcao not in ("admin", "usuario"):
+            conn.close()
+            flash("Tipo de usuário inválido.", "warning")
+            return redirect(url_for("editar_usuario", usuario_id=usuario_id))
+
+        if status not in ("ativo", "inativo"):
+            conn.close()
+            flash("Status inválido.", "warning")
+            return redirect(url_for("editar_usuario", usuario_id=usuario_id))
+
+        if senha and len(senha) < 12:
+            conn.close()
+            flash("A nova senha deve ter pelo menos 12 caracteres.", "warning")
+            return redirect(url_for("editar_usuario", usuario_id=usuario_id))
+
+        if senha != confirmar_senha:
+            conn.close()
+            flash("As novas senhas não coincidem.", "warning")
+            return redirect(url_for("editar_usuario", usuario_id=usuario_id))
+
+        permissoes = obter_permissoes_formulario()
+
+        try:
+            conn.execute("""
+                UPDATE usuarios
+                SET nome = ?,
+                    email = ?,
+                    setor = ?,
+                    funcao = ?,
+                    status = ?
+                WHERE id = ?
+            """, (
+                nome,
+                email,
+                setor,
+                funcao,
+                status,
+                usuario_id
+            ))
+
+            if senha:
+                conn.execute("""
+                    UPDATE usuarios
+                    SET senha = ?
+                    WHERE id = ?
+                """, (
+                    generate_password_hash(senha),
+                    usuario_id
+                ))
+
+            # Substitui as permissões antigas pelas novas
+            conn.execute("""
+                DELETE FROM permissoes
+                WHERE usuario_id = ?
+            """, (usuario_id,))
+
+            for modulo, acoes in permissoes.items():
+                conn.execute("""
+                    INSERT INTO permissoes
+                    (usuario_id, modulo, visualizar, criar, editar, excluir)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    usuario_id,
+                    modulo,
+                    acoes["visualizar"],
+                    acoes["criar"],
+                    acoes["editar"],
+                    acoes["excluir"]
+                ))
+
+            conn.commit()
+
+            flash("Usuário atualizado com sucesso!", "success")
+            return redirect(url_for("listar_usuarios"))
+
+        except sqlite3.IntegrityError:
+            conn.rollback()
+            flash("Este e-mail já está sendo utilizado por outro usuário.", "warning")
+
+        finally:
+            conn.close()
+
+        return redirect(url_for("editar_usuario", usuario_id=usuario_id))
+
+    # Busca as permissões atuais para preencher os checkboxes
+    registros = conn.execute("""
+        SELECT modulo, visualizar, criar, editar, excluir
+        FROM permissoes
+        WHERE usuario_id = ?
+    """, (usuario_id,)).fetchall()
+
+    conn.close()
+
+    permissoes = {}
+
+    for registro in registros:
+        permissoes[registro["modulo"]] = {
+            "visualizar": registro["visualizar"],
+            "criar": registro["criar"],
+            "editar": registro["editar"],
+            "excluir": registro["excluir"]
+        }
+
+    return render_template(
+        "editar_usuario.html",
+        usuario=usuario,
+        modulos=MODULOS_USUARIOS,
+        permissoes=permissoes
+    )
+
+
 @app.route("/cotador", methods=["GET", "POST"])
+@login_required
+@permissao_required("cotador", "visualizar")
 def index():
     # conectando ao banco de dados
     conn = sqlite3.connect("clientes.db")
@@ -106,6 +708,8 @@ def safe_float(value):
 
 
 @app.route("/salvar_orcamento", methods=["POST"])
+@login_required
+@permissao_required("orcamentos", "criar")
 def salvar_orcamento():
     dados = request.get_json()
     local = dados.get("local_obra", {})
@@ -205,6 +809,8 @@ def salvar_orcamento():
 
 
 @app.route("/orcamentos")
+@login_required
+@permissao_required("orcamentos", "visualizar")
 def listar_orcamentos():
     conn = sqlite3.connect("orcamentos.db")
     cur = conn.cursor()
@@ -270,6 +876,8 @@ def listar_orcamentos():
 
 
 @app.route("/atualizar_status", methods=["POST"])
+@login_required
+@permissao_required("orcamentos", "editar")
 def atualizar_status():
     data = request.get_json()
     orcamento_id = data.get("id")
@@ -299,6 +907,8 @@ def atualizar_status():
 
 
 @app.route("/orcamento/<int:orcamento_id>")
+@login_required
+@permissao_required("orcamentos", "visualizar")
 def ver_orcamento(orcamento_id):
     conn = sqlite3.connect("orcamentos.db")
     cur = conn.cursor()
@@ -369,6 +979,8 @@ def ver_orcamento(orcamento_id):
 
 
 @app.route("/emitir_orcamento", methods=["POST"])
+@login_required
+@permissao_required("orcamentos", "criar")
 def emitir_orcamento():
     try:
         metragem = float(request.form["metragem"])
@@ -450,11 +1062,14 @@ def emitir_orcamento():
 
 
 @app.route("/", methods=["GET"])
+@login_required
 def inicio():
     return render_template("inicio.html", titulo_pagina="Início")
 
 
 @app.route("/clientes", methods=["GET", "POST"])
+@login_required
+@permissao_required("clientes", "visualizar")
 def clientes():
     mensagem = ""
 
@@ -517,6 +1132,8 @@ def clientes():
 
 
 @app.route("/cliente_cadastro", methods=["GET", "POST"])
+@login_required
+@permissao_required("clientes", "criar")
 def cliente_cadastro():
     mensagem = ""
 
@@ -592,11 +1209,14 @@ def cliente_cadastro():
 
 
 @app.route("/exemplo", methods=["GET", "POST"])
+@login_required
 def exemplo():
     return render_template("exemplo.html")
 
 
 @app.route('/clientes/<int:id>/view', methods=['GET', 'POST'])
+@login_required
+@permissao_required("clientes", "editar")
 def editar_cliente(id):
     conn = get_db_connection()
 

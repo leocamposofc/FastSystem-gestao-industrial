@@ -1,0 +1,703 @@
+
+{% extends "base.html" %}
+
+{% block titulo_documento %}Usuários{% endblock %}
+{% block secao_pagina %}ADMINISTRAÇÃO{% endblock %}
+{% block pagina_atual %}Gerenciamento de Usuários{% endblock %}
+
+{% block head %}
+<style>
+    /* CABEÇALHO DA PÁGINA */
+    .usuarios-page {
+        width: 100%;
+    }
+
+    .usuarios-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .usuarios-header h1 {
+        font-size: 25px;
+        font-weight: 800;
+        color: var(--fs-grafite);
+        margin: 0 0 6px;
+    }
+
+    .usuarios-header p {
+        margin: 0;
+        color: #70777b;
+        font-size: 14px;
+    }
+
+    .btn-novo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 12px 19px;
+        border: none;
+        border-radius: 7px;
+        background: var(--fs-amarelo);
+        color: var(--fs-grafite);
+        font-weight: 800;
+        font-size: 13px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: .2s;
+        box-shadow: 0 3px 8px rgba(0,0,0,.10);
+    }
+
+    .btn-novo:hover {
+        background: #e5b817;
+        transform: translateY(-2px);
+    }
+
+    /* INDICADORES */
+    .usuarios-indicadores {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .indicador-card {
+        background: #fff;
+        border: 1px solid #e0e3e5;
+        border-radius: 9px;
+        padding: 19px;
+        box-shadow: 0 2px 7px rgba(0,0,0,.035);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .indicador-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--fs-amarelo);
+    }
+
+    .indicador-label {
+        display: block;
+        color: #777e82;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+        margin-bottom: 9px;
+    }
+
+    .indicador-valor {
+        display: block;
+        font-size: 29px;
+        font-weight: 800;
+        color: var(--fs-grafite);
+        line-height: 1;
+    }
+
+    .indicador-detalhe {
+        display: block;
+        color: #92989b;
+        font-size: 11px;
+        margin-top: 8px;
+    }
+
+    /* PAINEL PRINCIPAL */
+    .usuarios-panel {
+        background: #fff;
+        border: 1px solid #e0e3e5;
+        border-radius: 9px;
+        box-shadow: 0 3px 12px rgba(0,0,0,.045);
+        overflow: hidden;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 20px 22px;
+        border-bottom: 1px solid #e9ebed;
+        flex-wrap: wrap;
+    }
+
+    .panel-header h2 {
+        color: var(--fs-grafite);
+        font-size: 16px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .panel-header span {
+        color: #858c90;
+        font-size: 12px;
+    }
+
+    /* PESQUISA E FILTROS */
+    .usuarios-filtros {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 17px 22px;
+        background: #fafbfb;
+        border-bottom: 1px solid #e9ebed;
+        flex-wrap: wrap;
+    }
+
+    .campo-pesquisa {
+        flex: 1;
+        min-width: 220px;
+        position: relative;
+    }
+
+    .campo-pesquisa input {
+        width: 100%;
+        height: 40px;
+        border: 1px solid #dce0e2;
+        border-radius: 6px;
+        padding: 0 13px;
+        font-size: 13px;
+        outline: none;
+        background: #fff;
+    }
+
+    .campo-pesquisa input:focus,
+    .filtro-select:focus {
+        border-color: #d5ad19;
+        box-shadow: 0 0 0 3px rgba(244,196,48,.15);
+    }
+
+    .filtro-select {
+        height: 40px;
+        min-width: 145px;
+        padding: 0 10px;
+        border: 1px solid #dce0e2;
+        border-radius: 6px;
+        background: #fff;
+        color: #444b4f;
+        font-size: 12px;
+        outline: none;
+    }
+
+    /* TABELA */
+    .tabela-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .usuarios-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+    .usuarios-table thead {
+        background: #f3f4f5;
+    }
+
+    .usuarios-table th {
+        text-align: left;
+        padding: 14px 16px;
+        color: #737a7e;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .7px;
+        white-space: nowrap;
+    }
+
+    .usuarios-table td {
+        padding: 15px 16px;
+        border-top: 1px solid #edf0f1;
+        color: #42494d;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+
+    .usuarios-table tbody tr {
+        transition: background .15s;
+    }
+
+    .usuarios-table tbody tr:hover {
+        background: #fffdf5;
+    }
+
+    .usuario-identificacao {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 190px;
+    }
+
+    .usuario-avatar {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: #e9ebec;
+        color: var(--fs-grafite);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .usuario-nome {
+        display: block;
+        color: #292d30;
+        font-weight: 800;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .usuario-email {
+        display: block;
+        color: #8a9195;
+        font-size: 11px;
+    }
+
+    .badge-status,
+    .badge-funcao {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .status-ativo {
+        background: #e5f5eb;
+        color: #237a46;
+    }
+
+    .status-inativo {
+        background: #fce9e9;
+        color: #b43c3c;
+    }
+
+    .funcao-admin {
+        background: #fff3c8;
+        color: #856400;
+    }
+
+    .funcao-usuario {
+        background: #edf0f2;
+        color: #586167;
+    }
+
+    .acoes-usuario {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .btn-acao {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 10px;
+        border: 1px solid #dce0e2;
+        border-radius: 5px;
+        background: #fff;
+        color: #51595d;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .btn-acao:hover {
+        border-color: var(--fs-amarelo);
+        background: #fffaf0;
+        color: #292d30;
+    }
+
+    .sem-usuarios {
+        text-align: center !important;
+        padding: 45px 20px !important;
+        color: #92999d !important;
+    }
+
+    .sem-usuarios strong {
+        display: block;
+        color: #51595d;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    /* RODAPÉ */
+    .panel-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 22px;
+        background: #fafbfb;
+        border-top: 1px solid #e9ebed;
+        color: #858c90;
+        font-size: 11px;
+        flex-wrap: wrap;
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 900px) {
+        .usuarios-indicadores {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 560px) {
+        .usuarios-header {
+            align-items: flex-start;
+        }
+
+        .usuarios-header h1 {
+            font-size: 21px;
+        }
+
+        .btn-novo {
+            width: 100%;
+        }
+
+        .usuarios-indicadores {
+            gap: 9px;
+        }
+
+        .indicador-card {
+            padding: 15px;
+        }
+
+        .indicador-valor {
+            font-size: 25px;
+        }
+
+        .usuarios-filtros {
+            padding: 13px;
+        }
+
+        .campo-pesquisa {
+            min-width: 100%;
+        }
+
+        .filtro-select {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .panel-header,
+        .panel-footer {
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="usuarios-page">
+
+    <!-- CABEÇALHO -->
+    <div class="usuarios-header">
+
+        <div>
+            <h1>Gerenciamento de Usuários</h1>
+            <p>Controle os funcionários, contas e acessos ao FastSystem.</p>
+        </div>
+
+        <a href="{{ url_for('cadastrar_usuario') }}" class="btn-novo">
+            <i class="fas fa-plus"></i>
+            + Adicionar usuário
+        </a>
+
+    </div>
+
+
+    <!-- INDICADORES -->
+    <div class="usuarios-indicadores">
+
+        <div class="indicador-card">
+            <span class="indicador-label">Total de usuários</span>
+            <strong class="indicador-valor">{{ usuarios|length }}</strong>
+            <span class="indicador-detalhe">Contas cadastradas</span>
+        </div>
+
+        <div class="indicador-card">
+            <span class="indicador-label">Usuários ativos</span>
+            <strong class="indicador-valor">
+                {{ usuarios|selectattr('status', 'equalto', 'ativo')|list|length }}
+            </strong>
+            <span class="indicador-detalhe">Contas habilitadas</span>
+        </div>
+
+        <div class="indicador-card">
+            <span class="indicador-label">Usuários inativos</span>
+            <strong class="indicador-valor">
+                {{ usuarios|selectattr('status', 'equalto', 'inativo')|list|length }}
+            </strong>
+            <span class="indicador-detalhe">Contas desabilitadas</span>
+        </div>
+
+        <div class="indicador-card">
+            <span class="indicador-label">Administradores</span>
+            <strong class="indicador-valor">
+                {{ usuarios|selectattr('funcao', 'equalto', 'admin')|list|length }}
+            </strong>
+            <span class="indicador-detalhe">Acesso administrativo</span>
+        </div>
+
+    </div>
+
+
+    <!-- LISTAGEM -->
+    <div class="usuarios-panel">
+
+        <div class="panel-header">
+            <h2>Funcionários cadastrados</h2>
+            <span>GERENCIAMENTO INTERNO</span>
+        </div>
+
+
+        <!-- PESQUISA -->
+        <div class="usuarios-filtros">
+
+            <div class="campo-pesquisa">
+                <input
+                    type="search"
+                    id="pesquisaUsuario"
+                    placeholder="Pesquisar por nome, e-mail, CPF ou setor..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <select class="filtro-select" id="filtroFuncao">
+                <option value="">Todas as funções</option>
+                <option value="admin">Administrador</option>
+                <option value="usuario">Usuário</option>
+            </select>
+
+            <select class="filtro-select" id="filtroStatus">
+                <option value="">Todos os status</option>
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Inativos</option>
+            </select>
+
+        </div>
+
+
+        <!-- TABELA -->
+        <div class="tabela-wrapper">
+
+            <table class="usuarios-table" id="tabelaUsuarios">
+
+                <thead>
+                    <tr>
+                        <th>Funcionário</th>
+                        <th>CPF</th>
+                        <th>Setor</th>
+                        <th>Função</th>
+                        <th>Status</th>
+                        <th>Último acesso</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for usuario in usuarios %}
+
+                    <tr
+                        data-nome="{{ usuario.nome|lower }}"
+                        data-email="{{ usuario.email|lower }}"
+                        data-cpf="{{ usuario.cpf }}"
+                        data-setor="{{ usuario.setor|lower }}"
+                        data-funcao="{{ usuario.funcao }}"
+                        data-status="{{ usuario.status }}"
+                    >
+
+                        <td>
+                            <div class="usuario-identificacao">
+
+                                <div class="usuario-avatar">
+                                    {{ usuario.nome[:1]|upper }}
+                                </div>
+
+                                <div>
+                                    <span class="usuario-nome">
+                                        {{ usuario.nome }}
+                                    </span>
+
+                                    <span class="usuario-email">
+                                        {{ usuario.email }}
+                                    </span>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>{{ usuario.cpf }}</td>
+
+                        <td>{{ usuario.setor }}</td>
+
+                        <td>
+                            {% if usuario.funcao == 'admin' %}
+                                <span class="badge-funcao funcao-admin">
+                                    ADMINISTRADOR
+                                </span>
+                            {% else %}
+                                <span class="badge-funcao funcao-usuario">
+                                    USUÁRIO
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if usuario.status == 'ativo' %}
+                                <span class="badge-status status-ativo">
+                                    ATIVO
+                                </span>
+                            {% else %}
+                                <span class="badge-status status-inativo">
+                                    INATIVO
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if usuario.ultimo_acesso %}
+                                {{ usuario.ultimo_acesso }}
+                            {% else %}
+                                <span style="color:#a0a5a8;">Nunca acessou</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="acoes-usuario">
+                                <a href="{{ url_for('editar_usuario', usuario_id=usuario.id) }}">
+                                    Editar
+                                </a>
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="7" class="sem-usuarios">
+                            <strong>Nenhum usuário cadastrado</strong>
+                            Os funcionários cadastrados aparecerão aqui.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                    <tr id="nenhumResultado" style="display:none;">
+                        <td colspan="7" class="sem-usuarios">
+                            <strong>Nenhum resultado encontrado</strong>
+                            Tente alterar os filtros da pesquisa.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- RODAPÉ -->
+        <div class="panel-footer">
+
+            <span>
+                Total cadastrado:
+                <strong>{{ usuarios|length }}</strong>
+            </span>
+
+            <span>FASTSYSTEM · GESTÃO INDUSTRIAL</span>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const pesquisa = document.getElementById("pesquisaUsuario");
+    const filtroFuncao = document.getElementById("filtroFuncao");
+    const filtroStatus = document.getElementById("filtroStatus");
+
+    const tabela = document.getElementById("tabelaUsuarios");
+    const linhas = tabela.querySelectorAll("tbody tr[data-nome]");
+    const nenhumResultado = document.getElementById("nenhumResultado");
+
+    function filtrarUsuarios() {
+
+        const termo = pesquisa.value.toLowerCase().trim();
+        const funcao = filtroFuncao.value;
+        const status = filtroStatus.value;
+
+        let encontrados = 0;
+
+        linhas.forEach(function (linha) {
+
+            const nome = linha.dataset.nome;
+            const email = linha.dataset.email;
+            const cpf = linha.dataset.cpf;
+            const setor = linha.dataset.setor;
+
+            const funcaoUsuario = linha.dataset.funcao;
+            const statusUsuario = linha.dataset.status;
+
+            const correspondePesquisa =
+                nome.includes(termo) ||
+                email.includes(termo) ||
+                cpf.includes(termo) ||
+                setor.includes(termo);
+
+            const correspondeFuncao =
+                !funcao || funcaoUsuario === funcao;
+
+            const correspondeStatus =
+                !status || statusUsuario === status;
+
+            const mostrar =
+                correspondePesquisa &&
+                correspondeFuncao &&
+                correspondeStatus;
+
+            linha.style.display = mostrar ? "" : "none";
+
+            if (mostrar) encontrados++;
+
+        });
+
+        nenhumResultado.style.display =
+            encontrados === 0 ? "" : "none";
+    }
+
+    pesquisa.addEventListener("input", filtrarUsuarios);
+    filtroFuncao.addEventListener("change", filtrarUsuarios);
+    filtroStatus.addEventListener("change", filtrarUsuarios);
+
+});
+</script>
+{% endblock %}

@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ titulo_pagina }} - {{ empresa_nome }}</title>
+
     <style>
         /* ===== RESET ===== */
         * {
@@ -29,11 +31,89 @@
             content: '';
             position: absolute;
             inset: 0;
-            background-image: 
-                linear-gradient(45deg, rgba(255, 204, 0, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 204, 0, 0.05) 50%, rgba(255, 204, 0, 0.05) 75%, transparent 75%, transparent);
+            background-image:
+                linear-gradient(
+                    45deg,
+                    rgba(255, 204, 0, 0.05) 25%,
+                    transparent 25%,
+                    transparent 50%,
+                    rgba(255, 204, 0, 0.05) 50%,
+                    rgba(255, 204, 0, 0.05) 75%,
+                    transparent 75%,
+                    transparent
+                );
             background-size: 60px 60px;
             pointer-events: none;
             z-index: 0;
+        }
+
+        /* ===== IDENTIFICAÇÃO DO USUÁRIO ===== */
+        .usuario-logado {
+            position: fixed;
+            top: 22px;
+            left: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            background: rgba(34, 34, 34, 0.94);
+            border: 1px solid rgba(255, 204, 0, 0.35);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            max-width: calc(100vw - 44px);
+        }
+
+        .usuario-avatar {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffcc00, #b38f00);
+            color: #222;
+            font-size: 19px;
+            font-weight: 800;
+            border-radius: 50%;
+        }
+
+        .usuario-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .usuario-info strong {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .usuario-info .usuario-setor {
+            color: #aaa;
+            font-size: 11px;
+        }
+
+        .usuario-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #8bd69a;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .usuario-status::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: #38c172;
+            border-radius: 50%;
         }
 
         /* ===== CONTAINER ===== */
@@ -45,7 +125,7 @@
             width: 90%;
             max-width: 440px;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
             border: 2px solid #ffcc00;
             z-index: 1;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -53,7 +133,7 @@
 
         .container:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(255,204,0,0.2);
+            box-shadow: 0 12px 40px rgba(255, 204, 0, 0.2);
         }
 
         /* ===== TÍTULO ===== */
@@ -99,13 +179,13 @@
             cursor: pointer;
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(255,204,0,0.2);
+            box-shadow: 0 4px 10px rgba(255, 204, 0, 0.2);
         }
 
         .menu-btn:hover {
             background: linear-gradient(135deg, #ffd633, #e6b800);
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255,204,0,0.3);
+            box-shadow: 0 6px 15px rgba(255, 204, 0, 0.3);
         }
 
         .menu-btn:active {
@@ -122,26 +202,102 @@
         }
 
         /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 600px) {
+            .usuario-logado {
+                top: 12px;
+                left: 12px;
+                padding: 9px 12px;
+                gap: 9px;
+            }
+
+            .usuario-avatar {
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+                font-size: 16px;
+            }
+        }
+
         @media (max-width: 480px) {
-            h1 { font-size: 1.5rem; }
-            h2 { font-size: 1rem; }
-            .menu-btn { font-size: 15px; padding: 12px; }
-            .container { padding: 35px 25px; }
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1rem;
+            }
+
+            .menu-btn {
+                font-size: 15px;
+                padding: 12px;
+            }
+
+            .container {
+                padding: 35px 25px;
+                margin-top: 65px;
+            }
+
+            footer {
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
+
 <body>
+
+    <!-- ===== USUÁRIO CONECTADO ===== -->
+    {% if current_user.is_authenticated %}
+    <div class="usuario-logado">
+
+        <div class="usuario-avatar">
+            {{ current_user.nome[0]|upper }}
+        </div>
+
+        <div class="usuario-info">
+            <strong>{{ current_user.nome }}</strong>
+
+            <span class="usuario-setor">
+                {{ current_user.setor }}
+            </span>
+
+            <span class="usuario-status">
+                Conta conectada
+            </span>
+        </div>
+
+    </div>
+    {% endif %}
+
+    <!-- ===== MENU PRINCIPAL ===== -->
     <div class="container">
+
         <h1>{{ empresa_nome }}</h1>
-        <h1 style="font-size: 0.6rem">{{ empresa_slogan }}</h1>
+
+        <h1 style="font-size: 0.6rem">
+            {{ empresa_slogan }}
+        </h1>
+
         <h2>by {{ sistema_nome }}</h2>
 
         <a href="/cotador" class="menu-btn">Cotador</a>
-        <a href="/orcamentos" class="menu-btn">Orçamentos</a>
-        <a href="/clientes" class="menu-btn">Clientes</a>
-        <a href="/configuracoes" class="menu-btn">Configurações</a>
 
-        <footer>© 2025 - Todos os direitos reservados: {{ sistema_nome }} • Versão {{ versao_sistema}} </footer>
+        <a href="/orcamentos" class="menu-btn">Orçamentos</a>
+
+        <a href="/clientes" class="menu-btn">Clientes</a>
+
+        <a href="#" class="menu-btn">Configurações (!)</a>
+
+        <a href="/usuarios" class="menu-btn">Usuários (!)</a>
+
+        <a href="/logout" class="menu-btn">Desconectar ➜]</a>
+
+        <footer>
+            © 2025 - Todos os direitos reservados:
+            {{ sistema_nome }} • Versão {{ versao_sistema }}
+        </footer>
+
     </div>
+
 </body>
 </html>

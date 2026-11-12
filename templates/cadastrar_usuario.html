@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block titulo_documento %}Cadastrar usuário{% endblock %}
+{% block secao_pagina %}ADMINISTRAÇÃO{% endblock %}
+{% block pagina_atual %}Novo usuário{% endblock %}
+
+{% block head %}
+<style>
+.usuario-page{max-width:1100px;margin:0 auto;color:#292d30}
+.usuario-page *{box-sizing:border-box}
+.usuario-page .intro{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.usuario-page .intro h1{font-size:24px;margin:0 0 6px;font-weight:750}
+.usuario-page .intro p{margin:0;color:#687176;font-size:14px}
+.usuario-page .card{background:#fff;border:1px solid #dfe3e5;border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:0 2px 8px rgba(20,30,35,.04)}
+.usuario-page .card h2{font-size:16px;margin:0 0 18px;padding-bottom:12px;border-bottom:1px solid #e8ebed}
+.usuario-page .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.usuario-page .field{display:flex;flex-direction:column;gap:7px}
+.usuario-page .field.full{grid-column:1/-1}
+.usuario-page label{font-size:13px;font-weight:700;color:#454d51}
+.usuario-page input,.usuario-page select{width:100%;min-height:42px;border:1px solid #cfd5d8;border-radius:7px;padding:9px 11px;background:#fff;color:#292d30;font:inherit;font-size:14px;outline:none}
+.usuario-page input:focus,.usuario-page select:focus{border-color:#d5a900;box-shadow:0 0 0 3px rgba(244,196,48,.18)}
+.usuario-page .hint{font-size:12px;color:#778186;margin-top:-2px}
+.usuario-page .permissions{width:100%;border-collapse:collapse;font-size:13px}
+.usuario-page .permissions th,.usuario-page .permissions td{padding:12px 10px;border-bottom:1px solid #edf0f1;text-align:center}
+.usuario-page .permissions th:first-child,.usuario-page .permissions td:first-child{text-align:left}
+.usuario-page .permissions th{color:#667176;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.usuario-page .permissions input{width:17px;height:17px;min-height:0;accent-color:#d5a900;cursor:pointer}
+.usuario-page .module-name{font-weight:700}
+.usuario-page .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.usuario-page .btn{display:inline-flex;align-items:center;justify-content:center;min-height:41px;padding:0 17px;border-radius:7px;text-decoration:none;font-size:13px;font-weight:700;border:1px solid transparent;cursor:pointer}
+.usuario-page .btn-primary{background:#f4c430;color:#292d30}
+.usuario-page .btn-primary:hover{background:#e6b91e}
+.usuario-page .btn-secondary{background:#fff;color:#454d51;border-color:#cfd5d8}
+.usuario-page .alert{padding:12px 14px;border-radius:8px;margin-bottom:14px;background:#fff3cd;color:#664d03;font-size:13px}
+.usuario-page .empty{color:#778186;font-size:13px;padding:12px 0}
+@media(max-width:700px){.usuario-page .grid{grid-template-columns:1fr}.usuario-page .intro{flex-direction:column}.usuario-page .card{padding:16px}.usuario-page .table-wrap{overflow-x:auto}.usuario-page .permissions{min-width:560px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="usuario-page">
+    <div class="intro">
+        <div>
+            <h1>Cadastrar usuário</h1>
+            <p>Adicione um funcionário e configure o acesso dele ao FastSystem.</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ url_for('listar_usuarios') }}">Voltar para usuários</a>
+    </div>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+            {% for categoria, mensagem in mensagens %}
+                <div class="alert">{{ mensagem }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('cadastrar_usuario') }}">
+        <section class="card">
+            <h2>Dados do funcionário</h2>
+            <div class="grid">
+                <div class="field">
+                    <label for="nome">Nome completo</label>
+                    <input id="nome" name="nome" type="text" maxlength="120" required autocomplete="name">
+                </div>
+                <div class="field">
+                    <label for="email">E-mail de acesso</label>
+                    <input id="email" name="email" type="email" maxlength="160" required autocomplete="email">
+                </div>
+                <div class="field">
+                    <label for="cpf">CPF</label>
+                    <input id="cpf" name="cpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" required>
+                </div>
+                <div class="field">
+                    <label for="setor">Setor</label>
+                    <input id="setor" name="setor" type="text" maxlength="80" required placeholder="Ex.: Comercial, Operacional">
+                </div>
+                <div class="field">
+                    <label for="funcao">Tipo de usuário</label>
+                    <select id="funcao" name="funcao" required>
+                        <option value="usuario" selected>Usuário</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                    <span class="hint">Administradores têm acesso total ao sistema.</span>
+                </div>
+                <div class="field">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" required>
+                        <option value="ativo" selected>Ativo</option>
+                        <option value="inativo">Inativo</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="senha">Senha inicial</label>
+                    <input id="senha" name="senha" type="password" minlength="12" required autocomplete="new-password">
+                    <span class="hint">Utilize pelo menos 12 caracteres.</span>
+                </div>
+                <div class="field">
+                    <label for="confirmar_senha">Confirmar senha</label>
+                    <input id="confirmar_senha" name="confirmar_senha" type="password" minlength="12" required autocomplete="new-password">
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Permissões por módulo</h2>
+            <p class="hint">Marque as ações que este funcionário poderá executar. As opções desmarcadas não serão enviadas pelo formulário e devem ser gravadas como 0 na rota.</p>
+            {% if modulos %}
+                <div class="table-wrap">
+                    <table class="permissions">
+                        <thead>
+                            <tr>
+                                <th>Módulo</th>
+                                <th>Visualizar</th>
+                                <th>Criar</th>
+                                <th>Editar</th>
+                                <th>Excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for modulo in modulos %}
+                            <tr>
+                                <td class="module-name">{{ modulo.nome }}</td>
+                                {% for acao in ['visualizar', 'criar', 'editar', 'excluir'] %}
+                                <td>
+                                    <input type="checkbox"
+                                           name="permissoes[{{ modulo.chave }}][{{ acao }}]"
+                                           value="1"
+                                           aria-label="{{ acao }} - {{ modulo.nome }}">
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty">Nenhum módulo foi informado pela rota. Envie a variável <code>modulos</code> para exibir as permissões.</div>
+            {% endif %}
+        </section>
+
+        <div class="actions">
+            <a class="btn btn-secondary" href="{{ url_for('listar_usuarios') }}">Cancelar</a>
+            <button class="btn btn-primary" type="submit">Cadastrar usuário</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const senha = document.getElementById("senha");
+    const confirmar = document.getElementById("confirmar_senha");
+    const form = document.querySelector(".usuario-page form");
+
+    form.addEventListener("submit", function (event) {
+        if (senha.value !== confirmar.value) {
+            event.preventDefault();
+            alert("As senhas informadas não são iguais.");
+            confirmar.focus();
+        }
+    });
+
+    const cpf = document.getElementById("cpf");
+    cpf.addEventListener("input", function () {
+        let valor = cpf.value.replace(/\D/g, "").slice(0, 11);
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        cpf.value = valor;
+    });
+});
+</script>
+{% endblock %}
