@@ -57,6 +57,8 @@ if "latitude" not in colunas:
     cur.execute("ALTER TABLE orcamentos ADD COLUMN latitude REAL")
 if "longitude" not in colunas:
     cur.execute("ALTER TABLE orcamentos ADD COLUMN longitude REAL")
+if "complementos" not in colunas:
+    cur.execute("ALTER TABLE orcamentos ADD COLUMN complementos TEXT")
 
 # === DEMAIS TABELAS ===
 cur.execute("""

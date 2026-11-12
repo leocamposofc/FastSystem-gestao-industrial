@@ -163,7 +163,7 @@ def salvar_orcamento():
         ))
 
     # Terraplanagem
-    for t in dados["terra"]:
+    for t in dados["terraplanagem"]:
         cur.execute("""
             INSERT INTO terraplanagem (orcamento_id, tipo_operacao, area, espessura, densidade, preco, perda, frete)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -297,6 +297,7 @@ def atualizar_status():
     return jsonify({"sucesso": True})
 
 
+
 @app.route("/orcamento/<int:orcamento_id>")
 def ver_orcamento(orcamento_id):
     conn = sqlite3.connect("orcamentos.db")
@@ -307,7 +308,16 @@ def ver_orcamento(orcamento_id):
     orc = cur.fetchone()
 
     if not orc:
+        conn.close()
         return f"<h3>Orçamento #{orcamento_id} não encontrado.</h3>"
+
+    # Localização da obra
+    local_obra = {
+        "endereco": orc[8],
+        "lat": orc[9],
+        "lng": orc[10],
+        "complementos": orc[11]
+    }
 
     # Tabelas relacionadas
     cur.execute("SELECT * FROM camadas_massa WHERE orcamento_id=?",
@@ -326,12 +336,36 @@ def ver_orcamento(orcamento_id):
                 (orcamento_id,))
     extras = cur.fetchall()
 
+    cur.execute("SELECT * FROM status WHERE id=?", (orc[5],))
+    status = cur.fetchone()
+
+    # FILTRA REGISTROS SEM IDENTIFICAÇÃO
+    def registro_valido(registro):
+        valor = registro[2]
+
+        return (
+            valor is not None
+            and str(valor).strip().lower() not in ("", "none", "null")
+        )
+
+    massas = [m for m in massas if registro_valido(m)]
+    colas = [c for c in colas if registro_valido(c)]
+    terra = [t for t in terra if registro_valido(t)]
+    extras = [e for e in extras if registro_valido(e)]
+
     conn.close()
 
     return render_template(
         "ver_orcamento.html",
-        orc=orc, massas=massas, colas=colas, terra=terra, extras=extras
+        orc=orc,
+        massas=massas,
+        colas=colas,
+        terra=terra,
+        extras=extras,
+        local_obra=local_obra,
+        status=status
     )
+
 
 
 @app.route("/emitir_orcamento", methods=["POST"])

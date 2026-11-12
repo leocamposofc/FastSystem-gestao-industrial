@@ -377,16 +377,18 @@
 
 
 {% block content %}
-  {# A variável local_obra pode ser um dicionário {endereco, lat, lng} ou texto simples. #}
   {% set local = local_obra|default({}, true) %}
+
   {% if local is mapping %}
     {% set endereco_obra = local.endereco|default('', true) %}
     {% set latitude_obra = local.lat|default('', true) %}
     {% set longitude_obra = local.lng|default('', true) %}
+    {% set complementos_obra = local.complementos|default('', true) %}
   {% else %}
     {% set endereco_obra = local %}
     {% set latitude_obra = lat_obra|default('', true) %}
     {% set longitude_obra = lng_obra|default('', true) %}
+    {% set complementos_obra = '' %}
   {% endif %}
 
   <main class="page">
@@ -416,7 +418,11 @@
       </div>
       <div class="summary-card">
         <div class="summary-label">Status</div>
-        <div class="summary-value"><span class="status">{{ orc[5] }}</span></div>
+        {% if status %}
+          <div class="summary-value"><span class="status">{{ status[1] }}</span></div>
+        {% else %}
+          <div class="summary-value"><span class="status">Não definido</span></div>
+        {% endif %}
       </div>
     </section>
 
@@ -435,6 +441,9 @@
             <div class="location-text">
               {% if endereco_obra %}
                 {{ endereco_obra }}
+                {% if complementos_obra %}
+                  <br><span style="color:#737b80;font-weight:500">{{ complementos_obra }}</span>
+                {% endif %}
               {% else %}
                 Localização não informada neste orçamento.
               {% endif %}
@@ -453,7 +462,8 @@
       </div>
     </section>
 
-    <section class="section">
+    {% if massas %}
+<section class="section">
       <div class="section-head">
         <div class="section-number">02</div>
         <div>
@@ -478,8 +488,10 @@
         </table>
       </div>
     </section>
+{% endif %}
 
-    <section class="section">
+    {% if colas %}
+<section class="section">
       <div class="section-head">
         <div class="section-number">03</div>
         <div>
@@ -504,8 +516,10 @@
         </table>
       </div>
     </section>
+{% endif %}
 
-    <section class="section">
+    {% if terra %}
+<section class="section">
       <div class="section-head">
         <div class="section-number">04</div>
         <div>
@@ -529,8 +543,10 @@
         </table>
       </div>
     </section>
+{% endif %}
 
-    <section class="section">
+    {% if extras %}
+<section class="section">
       <div class="section-head">
         <div class="section-number">05</div>
         <div>
@@ -555,6 +571,7 @@
         </table>
       </div>
     </section>
+{% endif %}
 
     <section class="total-panel">
       <div>

@@ -1,0 +1,48 @@
+{
+  "cliente": {
+    "id": "3",
+    "nome": "Origens açaiteria3",
+    "empresa": "origensacaiteria"
+  },
+  "massas": [
+    {
+      "metragem": "",
+      "espessura": "",
+      "densidade": "",
+      "preco": "",
+      "perda": "10.0",
+      "frete": ""
+    }
+  ],
+  "colas": [
+    {
+      "metragem": "",
+      "litro_m": "",
+      "litro_tonel": "",
+      "preco_tonel": "",
+      "perda": "10.0",
+      "frete_tonel": ""
+    }
+  ],
+  "terraplanagem": [
+    {
+      "tipo_operacao": "corte",
+      "area": "1000",
+      "espessura": "0.5",
+      "densidade": "1.6",
+      "preco": "50",
+      "perda": "5",
+      "frete": "10"
+    }
+  ],
+  "extras": [],
+  "local_obra": {
+    "endereco": "Rua Senador Darcy Ribeiro, Itaim Paulista, São Paulo, 08121-700",
+    "lat": -23.5096829,
+    "lng": -46.3772666,
+    "complementos": "casa 7"
+  },
+  "resumo": {
+    "geral": 77313.6
+  }
+}
