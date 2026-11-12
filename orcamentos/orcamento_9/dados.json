@@ -1,0 +1,47 @@
+{
+  "cliente": {
+    "id": "3",
+    "nome": "Origens açaiteria3",
+    "empresa": "origensacaiteria"
+  },
+  "massas": [
+    {
+      "metragem": "",
+      "espessura": "",
+      "densidade": "",
+      "preco": "",
+      "perda": "10.0",
+      "frete": ""
+    }
+  ],
+  "colas": [
+    {
+      "metragem": "",
+      "litro_m": "",
+      "litro_tonel": "",
+      "preco_tonel": "",
+      "perda": "10.0",
+      "frete_tonel": ""
+    }
+  ],
+  "terra": [],
+  "terraplanagem": [
+    {
+      "area": "1000",
+      "espessura": "1",
+      "densidade": "1.6",
+      "preco": "50",
+      "perda": "5",
+      "frete": "10"
+    }
+  ],
+  "extras": [],
+  "local_obra": {
+    "endereco": "",
+    "lat": -23.55052,
+    "lng": -46.633308
+  },
+  "resumo": {
+    "geral": 157248
+  }
+}

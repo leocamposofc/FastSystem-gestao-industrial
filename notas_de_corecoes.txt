@@ -1,8 +1,10 @@
 corrigir 
 instalar sistema de login 
 tela configurações
-enviar mais informacoes de endereço alem da cordenada ao salvar orçamento
-novo imput com numero do logradouro e complemento
-corrigir envio de informações de terraplanagem
-corrigir envio de cordenadas e endereço para a tela de ver orçamento
+> enviar mais informacoes de endereço alem da cordenada ao salvar orçamento
+> novo imput com numero do logradouro e complemento
+> corrigir envio de informações de terraplanagem
+> corrigir envio de cordenadas e endereço para a tela de ver orçamento
 copiar identidade visual da tela de ver orçamentos para a tela de cotação
+
+no momento atual erro ao salvatr o orcamento provavelmente beckend sql 

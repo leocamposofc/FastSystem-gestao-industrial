@@ -114,8 +114,8 @@ def salvar_orcamento():
 
     # Cria orçamento principal
     cur.execute("""
-        INSERT INTO orcamentos (cliente_id, cliente_nome, cliente_empresa, total_geral, endereco, latitude, longitude)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO orcamentos (cliente_id, cliente_nome, cliente_empresa, total_geral, endereco, latitude, longitude, complementos)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         dados["cliente"]["id"],
         dados["cliente"]["nome"],
@@ -123,7 +123,8 @@ def salvar_orcamento():
         safe_float(dados["resumo"]["geral"]),
         local.get("endereco"),
         local.get("lat"),
-        local.get("lng")
+        local.get("lng"),
+        local.get("complementos")
     ))
     orcamento_id = cur.lastrowid
 
