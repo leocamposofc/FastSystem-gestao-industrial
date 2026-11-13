@@ -77,7 +77,13 @@
             font-weight: 800;
             border-radius: 50%;
         }
-
+        
+        .desconectar {
+            font-size: 11px;
+            color: #ffee00;
+            text-decoration: underline;
+            cursor: pointer;
+        }
         .usuario-info {
             display: flex;
             flex-direction: column;
@@ -264,6 +270,12 @@
             <span class="usuario-status">
                 Conta conectada
             </span>
+
+            <span class="desconectar">
+                <a href="{{ url_for('logout') }}">
+                    > Desconectar
+                </a>    
+            </span>
         </div>
 
     </div>
@@ -289,8 +301,6 @@
         <a href="#" class="menu-btn">Configurações (!)</a>
 
         <a href="/usuarios" class="menu-btn">Usuários (!)</a>
-
-        <a href="/logout" class="menu-btn">Desconectar ➜]</a>
 
         <footer>
             © 2025 - Todos os direitos reservados:
