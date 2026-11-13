@@ -1,0 +1,69 @@
+<!-- Popup de mensagens -->
+    <style>
+    .toast-container {
+        position: fixed;
+        top: 25px;
+        right: 25px;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .toast-alert {
+        min-width: 300px;
+        max-width: 380px;
+        background: #292d30;
+        color: white;
+        padding: 17px 20px;
+        border-radius: 10px;
+        border-left: 5px solid #f4c430;
+        box-shadow: 0 8px 25px rgba(0,0,0,.25);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: toastIn .3s ease;
+    }
+
+    .toast-alert .toast-icon {
+        color: #f4c430;
+        font-size: 23px;
+    }
+
+    .toast-alert button {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    </style>
+
+    <div class="toast-container">
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% for categoria, mensagem in mensagens %}
+                <div class="toast-alert">
+                    <span class="toast-icon">⚠</span>
+                    <span>{{ mensagem }}</span>
+                    <button onclick="this.parentElement.remove()">×</button>
+                </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+
+    <script>
+    setTimeout(() => {
+        document.querySelectorAll('.toast-alert').forEach(alerta => {
+            alerta.style.transition = 'opacity .4s';
+            alerta.style.opacity = '0';
+            setTimeout(() => alerta.remove(), 400);
+        });
+    }, 5000);
+    </script>
+    <!-- Fim do popup de mensagens -->

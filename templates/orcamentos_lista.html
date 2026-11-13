@@ -77,6 +77,18 @@
   .btn-salvar:hover {
     background: #218838;
   }
+  .btn-deletar {
+    background: #e90404;
+  }
+  .btn-deletar:hover {
+    background: #b30000;
+  }
+  .btn-editar {
+    background: #fc9801;
+  }
+  .btn-editar:hover {
+    background: #ff7b00;
+  }
 </style>
 {% endblock %}
 
@@ -111,8 +123,10 @@
       </td>
       <td>R$ {{ "%.2f"|format(total|float) }}</td>
       <td class="actions">
-        <a href="/orcamento/{{ id }}" class="btn btn-visualizar">👁️ Visualizar</a>
-        <button class="btn btn-salvar" data-orcamento="{{ id }}">💾 Salvar</button>
+        <a href="/orcamento/{{ id }}" class="btn btn-visualizar">👁️</a>
+        <button class="btn btn-salvar" data-orcamento="{{ id }}">💾</button>
+        <button class="btn btn-deletar" data-orcamento="{{ id }}">❌</button>
+        <button class="btn btn-editar" data-orcamento="{{ id }}">✏️</button>
       </td>
     </tr>
     {% endfor %}

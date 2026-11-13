@@ -155,8 +155,11 @@ def permissao_required(modulo, acao):
 
             # Sem permissão, bloqueia o acesso
             if not permissao or not permissao[0]:
-                abort(403)
-
+                flash(
+                    f"{configuracoes.permissao_negada}",
+                    "warning"
+                )
+                return redirect(url_for("inicio"))
             return func(*args, **kwargs)
 
         return wrapper
@@ -171,8 +174,11 @@ def admin_required(func):
             return redirect(url_for("login"))
 
         if current_user.funcao != "admin":
-            abort(403)
-
+            flash(
+                f"{configuracoes.permissao_negada}",
+                "warning"
+            )   
+            return redirect(url_for("inicio")) 
         return func(*args, **kwargs)
 
     return wrapper
@@ -706,6 +712,7 @@ def safe_float(value):
     except (ValueError, TypeError):
         return 0.0
 
+# ROTAS ORÇAMENTOS
 
 @app.route("/salvar_orcamento", methods=["POST"])
 @login_required
@@ -1067,6 +1074,8 @@ def inicio():
     return render_template("inicio.html", titulo_pagina="Início")
 
 
+# ROTAS CLIENTES
+
 @app.route("/clientes", methods=["GET", "POST"])
 @login_required
 @permissao_required("clientes", "visualizar")
@@ -1206,12 +1215,6 @@ def cliente_cadastro():
             mensagem = "Preencha os campos obrigatórios: Nome, Celular1 e Email."
 
     return render_template("cliente_cadastro.html", mensagem=mensagem)
-
-
-@app.route("/exemplo", methods=["GET", "POST"])
-@login_required
-def exemplo():
-    return render_template("exemplo.html")
 
 
 @app.route('/clientes/<int:id>/view', methods=['GET', 'POST'])
